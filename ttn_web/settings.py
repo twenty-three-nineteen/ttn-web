@@ -82,8 +82,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'ttnDB',
-        'USER':'ttn',
-        'PASSWORD':'root',
+        'USER':'postgres',
+        'PASSWORD':'97521261',
         'HOST':'localhost',
     }
 }
