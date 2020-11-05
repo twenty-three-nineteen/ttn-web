@@ -25,7 +25,7 @@ SECRET_KEY = 'k1w&v_e9e-cm#2yp)_w^ys$7mj+u5-45vo%sp=y*!q#sx$vl$+'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -38,7 +38,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework.authtoken',
     'rest_framework_swagger',
+    'authentication',
+    'djoser',
 ]
 
 MIDDLEWARE = [
@@ -78,11 +81,35 @@ WSGI_APPLICATION = 'ttn_web.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'restfulapiDB',
+        'NAME': 'ttnDB',
         'USER':'ttn',
         'PASSWORD':'root',
         'HOST':'localhost',
     }
+}
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS':'rest_framework.schemas.coreapi.AutoSchema',
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+    ),
+    'DEFAULT_PERMISSIONS_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+}
+
+AUTH_USER_MODEL = 'authentication.User'
+
+DJOSER = {
+    'LOGIN_FIELD': 'email',
+    'USER_CREATE_PASSWORD_RETYPE': True,
+    'SERIALIZER': {
+        'user_create': 'authentication.serializer.UserCreateSerializer',
+        'user': 'authentication.serializer.UserCreateSerializer',
+    },
 }
 
 
@@ -123,7 +150,3 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
-
-REST_FRAMEWORK = {
-    'DEFAULT_SCHEMA_CLASS':'rest_framework.schemas.coreapi.AutoSchema',
-}
