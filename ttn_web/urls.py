@@ -23,5 +23,5 @@ schema_view = get_swagger_view(title='ttn-proj')
 urlpatterns = [
     path('api_documentation/', schema_view),
     path('admin/', admin.site.urls),
-    path('auth/', include('authentication.urls')),
+    path('auth/', include('account.urls')),
 ]

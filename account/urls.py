@@ -1,5 +1,5 @@
 from django.urls import path, include
-from authentication import views
+from account import views
 
 urlpatterns = [
     path('', include('djoser.urls')),

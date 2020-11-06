@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'rest_framework_swagger',
-    'authentication',
+    'account',
     'djoser',
 ]
 
@@ -98,14 +98,13 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.TokenAuthentication',
-        'rest_framework.authentication.TokenAuthentication',
     ),
     'DEFAULT_PERMISSIONS_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),
 }
 
-AUTH_USER_MODEL = 'authentication.User'
+AUTH_USER_MODEL = 'account.User'
 
 SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('JWT',),
@@ -125,8 +124,8 @@ DJOSER = {
     'SEND_ACTIVATION_EMAIL': True,
 
     'SERIALIZER': {
-        'user_create': 'authentication.serializer.UserCreateSerializer',
-        'user': 'authentication.serializer.UserCreateSerializer',
+        'user_create': 'account.serializer.UserCreateSerializer',
+        'user': 'account.serializer.UserCreateSerializer',
         'user_delete': 'djoser.serializer.UserDeleteSerializer',
     },
 }
