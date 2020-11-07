@@ -30,3 +30,12 @@ class User(AbstractUser):
 
     class Meta:
         db_table = "users"
+
+
+class OpeningMessage(models.Model):
+    message = models.CharField(max_length=200)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    viewed_by_users = models.ManyToManyField(User, default=None, blank=True, related_name='viewed_by')
+
+    class Meta:
+        db_table = "opening_message"
