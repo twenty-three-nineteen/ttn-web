@@ -15,3 +15,9 @@ class OpeningMessageForExplore(serializers.ModelSerializer):
     class Meta:
         model = OpeningMessage
         fields = ["username", "message"]
+
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserProfile
+        fields = ['bio', 'birthday']

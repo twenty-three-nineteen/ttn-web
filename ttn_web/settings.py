@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'rest_framework_swagger',
-    'account',
+    'account.apps.AuthConfig',
     'djoser',
 ]
 
@@ -108,6 +108,7 @@ REST_FRAMEWORK = {
 }
 
 AUTH_USER_MODEL = 'account.User'
+AUTH_PROFILE_MODULE = 'account.UserProfile'
 
 SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('JWT',),
