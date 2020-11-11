@@ -1,25 +1,35 @@
 from django.http import JsonResponse
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
-from rest_framework import status
-from rest_framework.response import Response
-from account import serializers
+from rest_framework import viewsets
 
-from account.models import OpeningMessage
-
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def restricted(request):
-    return Response(data="Only for Logged in User", status=status.HTTP_200_OK)
+from .permissions import *
+from .serializers import *
+from .models import OpeningMessage
 
 
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def next_opening_message(request):
-    opening_messages = OpeningMessage.objects.all().exclude(user=request.user).exclude(viewed_by_users=request.user)
-    if len(opening_messages) == 0:
-        raise FileNotFoundError('No opening message to show')
-    opening_message_to_show = opening_messages[0]
-    opening_message_to_show.viewed_by_users.add(request.user)
-    return JsonResponse(serializers.OpeningMessageForExplore(opening_message_to_show).data, safe=False)
+class OpeningMessageViewSet(viewsets.ModelViewSet):
+    serializer_class = OpeningMessageSerializer
+    permission_classes = (IsAuthenticated, IsOwner)
+
+    def get_queryset(self):
+        return OpeningMessage.objects.all().filter(owner=self.request.user)
+
+
+class ExploreViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated, ]
+
+    def get_queryset(self):
+        return OpeningMessage.objects.all().exclude(owner=self.request.user).exclude(viewed_by_users=self.request.user)
+
+    @action(detail=False, methods=['get'])
+    def get_suggested_opening_message(self, request):
+        opening_message_to_show = self.get_suggested_for_user()
+        opening_message_to_show.viewed_by_users.add(request.user)
+        return JsonResponse(OpeningMessageSerializer(opening_message_to_show).data, safe=False)
+
+    def get_suggested_for_user(self):
+        opening_messages = self.get_queryset()
+        if len(opening_messages) == 0:
+            raise FileNotFoundError('No opening message to show')
+        return opening_messages[0]
