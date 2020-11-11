@@ -52,6 +52,7 @@ class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     bio = models.CharField(max_length=255, default="Hello")
     birthday = models.DateField(auto_now_add=True)
+    avatar = models.ForeignKey(Avatar, on_delete=models.SET_NULL, default=None, null=True)
 
     class Meta:
         db_table = 'users_profile'
