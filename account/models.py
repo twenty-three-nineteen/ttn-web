@@ -33,6 +33,13 @@ class User(AbstractUser):
         db_table = "users"
 
 
+class Interest(models.Model):
+    subject = models.CharField(max_length=100)
+
+    class Meta:
+        db_table = 'Interests'
+
+
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     bio = models.CharField(max_length=255, default="Hello")
