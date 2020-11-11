@@ -1,5 +1,6 @@
 from djoser.serializers import UserCreateSerializer
 from rest_framework import serializers
+
 from .models import *
 
 
@@ -9,12 +10,10 @@ class UserCreateSerializer(UserCreateSerializer):
         fields = ('id', 'email', 'username', 'password')
 
 
-class OpeningMessageForExplore(serializers.ModelSerializer):
-    username = serializers.CharField(source='user.username', read_only=True)
-
+class OpeningMessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = OpeningMessage
-        fields = ["username", "message"]
+        fields = ["id", "owner", "message"]
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
