@@ -40,6 +40,14 @@ class Interest(models.Model):
         db_table = 'Interests'
 
 
+class Avatar(models.Model):
+    name = models.CharField(max_length=100)
+    image = models.ImageField(upload_to='pictures/avatar/')
+
+    class Meta:
+        db_table = 'avatars'
+
+
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     bio = models.CharField(max_length=255, default="Hello")
