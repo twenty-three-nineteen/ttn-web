@@ -14,3 +14,21 @@ class OpeningMessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = OpeningMessage
         fields = ["id", "owner", "message"]
+
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserProfile
+        fields = ['bio', 'birthday']
+
+
+class InterestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Interest
+        fields = ['subject']
+
+
+class AvatarSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Avatar
+        fields = ['name']

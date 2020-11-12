@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'rest_framework_swagger',
-    'account',
+    'account.apps.AuthConfig',
     'djoser',
 ]
 
@@ -79,9 +79,6 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'ttnDB',
-        'USER':'postgres',
-        'PASSWORD':'97521261',
-        'HOST':'localhost',
         'USER': 'ttn',
         'PASSWORD': 'root',
         'HOST': 'localhost',
@@ -108,6 +105,7 @@ REST_FRAMEWORK = {
 }
 
 AUTH_USER_MODEL = 'account.User'
+AUTH_PROFILE_MODULE = 'account.UserProfile'
 
 SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('JWT',),

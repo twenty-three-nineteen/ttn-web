@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.postgres.fields import ArrayField
 from django.contrib.auth.models import AbstractUser, PermissionsMixin, BaseUserManager
 
 
@@ -30,6 +31,31 @@ class User(AbstractUser):
 
     class Meta:
         db_table = "users"
+
+
+class Interest(models.Model):
+    subject = models.CharField(max_length=100)
+
+    class Meta:
+        db_table = 'Interests'
+
+
+class Avatar(models.Model):
+    name = models.CharField(max_length=100)
+    image = models.ImageField(upload_to='pictures/avatar/')
+
+    class Meta:
+        db_table = 'avatars'
+
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    bio = models.CharField(max_length=255, default="Hello")
+    birthday = models.DateField(auto_now_add=True)
+    avatar = models.ForeignKey(Avatar, on_delete=models.SET_NULL, default=None, null=True)
+
+    class Meta:
+        db_table = 'users_profile'
 
 
 class OpeningMessage(models.Model):
