@@ -10,7 +10,7 @@ from .models import *
 
 
 @api_view(['GET'])
-@permission_classes([UserPermission, ])
+@permission_classes([UserPermission, IsAuthenticated])
 def get_user_profile_username(request, username):
     try:
         curr_user = User.objects.get(username=username)
@@ -27,7 +27,7 @@ def get_user_profile_username(request, username):
 
 
 @api_view(['PUT'])
-@permission_classes([UserPermission])
+@permission_classes([UserPermission, IsAuthenticated])
 def update_user_profile(request, username):
     try:
         curr_user = User.objects.get(username=username)

@@ -8,6 +8,11 @@ class UserPermission(permissions.BasePermission):
             return False
         return request.user.username == username
 
+    def has_object_permission(self, request, view, obj):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        return request.user.profile == obj
+
 
 class IsOwner(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
