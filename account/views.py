@@ -42,7 +42,7 @@ def update_user_profile(request, username):
                 {
                     "success": "update successfully",
                     "code": 1
-                }
+                }, status=status.HTTP_200_OK
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
