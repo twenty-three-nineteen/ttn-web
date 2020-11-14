@@ -5,7 +5,7 @@ class UserPermission(permissions.BasePermission):
     def has_permission(self, request, view):
         username = view.kwargs.get('username', None)
         if username is None:
-            return False
+            return True
         return request.user.username == username
 
     def has_object_permission(self, request, view, obj):
@@ -18,11 +18,11 @@ class IsOwner(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         if obj.owner != request.user:
             return False
-        if request.method == 'PUT':
+        if request.data:
             return request.data['owner'] == request.user.id
         return True
 
     def has_permission(self, request, view):
-        if request.method == 'POST':
+        if request.data:
             return request.data['owner'] == request.user.id
         return True

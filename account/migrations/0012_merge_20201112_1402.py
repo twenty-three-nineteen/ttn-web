@@ -7,7 +7,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('account', '0010_userprofile_avatar'),
-        ('account', '0011_auto_20201109_2348'),
+        ('account', '0011_auto_20201111_2213'),
     ]
 
     operations = [
