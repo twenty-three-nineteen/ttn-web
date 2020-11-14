@@ -16,4 +16,13 @@ class UserPermission(permissions.BasePermission):
 
 class IsOwner(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
-        return obj.owner == request.user and request.data.owner != request.user
+        if obj.owner != request.user:
+            return False
+        if request.method == 'PUT':
+            return request.data['owner'] == request.user.id
+        return True
+
+    def has_permission(self, request, view):
+        if request.method == 'POST':
+            return request.data['owner'] == request.user.id
+        return True
