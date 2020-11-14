@@ -20,7 +20,7 @@ def get_user_profile_username(request, username):
     if request.method == 'GET':
         return Response(
             {
-                "user": (UserSerializer(curr_user)).data,
+                "user": (UserCreateSerializer(curr_user)).data,
                 "user_profile": (UserProfileSerializer(curr_user_profile)).data
             }
         )
@@ -49,11 +49,11 @@ def update_user_profile(request, username):
 
 class OpeningMessageViewSet(viewsets.ModelViewSet):
     serializer_class = OpeningMessageSerializer
-    permission_classes = (IsAuthenticated, IsOwner)
+    permission_classes = [IsAuthenticated, IsOwner]
 
     def get_queryset(self):
         return OpeningMessage.objects.all().filter(owner=self.request.user)
-      
+
 
 class ExploreViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated, ]
@@ -72,5 +72,3 @@ class ExploreViewSet(viewsets.ViewSet):
         if len(opening_messages) == 0:
             raise FileNotFoundError('No opening message to show')
         return opening_messages[0]
-      
-      
