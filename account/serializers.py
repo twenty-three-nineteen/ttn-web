@@ -19,7 +19,7 @@ class OpeningMessageSerializer(serializers.ModelSerializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
-        fields = ['bio', 'birthday']
+        fields = ['bio', 'birthday', 'avatar', 'interests']
 
 
 class InterestSerializer(serializers.ModelSerializer):

@@ -15,3 +15,7 @@ explore = ExploreViewSet.as_view({
     'get': 'get_suggested_opening_message'
 })
 
+user_profile = UserProfileViewSet.as_view({
+    'get': 'get_user_profile_username',
+    'put': 'update_user_profile'
+})

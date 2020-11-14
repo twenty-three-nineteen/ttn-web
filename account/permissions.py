@@ -2,12 +2,17 @@ from rest_framework import permissions
 
 
 class UserPermission(permissions.BasePermission):
+    def has_permission(self, request, view):
+        username = view.kwargs.get('username', None)
+        if username is None:
+            return False
+        return request.user.username == username
 
     def has_object_permission(self, request, view, obj):
         if request.method in permissions.SAFE_METHODS:
             return True
-        return request.user.id == obj.user_id
-      
+        return request.user.profile == obj
+
 
 class IsOwner(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
@@ -21,4 +26,3 @@ class IsOwner(permissions.BasePermission):
         if request.method == 'POST':
             return request.data['owner'] == request.user.id
         return True
-
