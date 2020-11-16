@@ -25,6 +25,7 @@ SECRET_KEY = 'k1w&v_e9e-cm#2yp)_w^ys$7mj+u5-45vo%sp=y*!q#sx$vl$+'
 DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
+CORS_ALLOW_ALL_ORIGINS = True
 
 # Application definition
 
@@ -40,9 +41,12 @@ INSTALLED_APPS = [
     'rest_framework_swagger',
     'account.apps.AuthConfig',
     'djoser',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
