@@ -5,7 +5,7 @@ class UserPermission(permissions.BasePermission):
     def has_permission(self, request, view):
         username = view.kwargs.get('username', None)
         if username is None:
-            return True
+            return False
         return request.user.username == username
 
     def has_object_permission(self, request, view, obj):

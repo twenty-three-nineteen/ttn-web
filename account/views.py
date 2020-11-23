@@ -1,5 +1,5 @@
 from django.http import JsonResponse
-from rest_framework.decorators import action, api_view, permission_classes
+from rest_framework.decorators import action
 from rest_framework import status, viewsets
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -72,3 +72,46 @@ class ExploreViewSet(viewsets.ViewSet):
         if len(opening_messages) == 0:
             raise FileNotFoundError('No opening message to show')
         return opening_messages[0]
+
+
+class RequestViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated, ]
+    serializer_class = RequestSerializer
+
+    def get_queryset(self):
+        queryset = RequestModel.objects.all().filter(req_from=self.request.user)
+        return queryset
+
+    @action(detail=False, methods=['post'])
+    def send_request_opening_message(self, request):
+        serializer = RequestSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(status.HTTP_400_BAD_REQUEST)
+
+        serializer.save()
+        return Response(
+            {
+                'message': 'request successfully sent ...',
+            }, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['patch'])
+    def response_request(self, request, state, pk):
+
+        updated_req_state = request.data['req_state']
+        if request.method == 'PATCH':
+            if state != 'accepted' and state != 'rejected':
+                return Response({'message': 'invalid req '}, status=status.HTTP_403_FORBIDDEN)
+            if state != updated_req_state:
+                return Response({'message': 'body and request must same'}, status=status.HTTP_403_FORBIDDEN)
+            try:
+                RequestModel.objects.filter(id=pk).update(req_state=updated_req_state)
+                return Response({'message': f'request {state} successfully '}, status=status.HTTP_200_OK)
+            except RequestModel.DoesNotExist:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+
+    @action(methods=['get'], detail=True)
+    def get_user_requests(self, request):
+        user_profile = UserProfile.objects.get(user=request.user)
+        related_req = RequestModel.objects.filter(req_to=user_profile)
+        serializer = RequestSerializer(related_req, many=True)
+        return Response({'requests': serializer.data}, status=status.HTTP_200_OK)

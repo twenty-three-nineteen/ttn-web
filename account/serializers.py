@@ -19,7 +19,7 @@ class OpeningMessageSerializer(serializers.ModelSerializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
-        fields = ['bio', 'birthday', 'avatar', 'interests']
+        fields = ['bio', 'birthday', 'avatar', 'interests', 'requests']
 
 
 class InterestSerializer(serializers.ModelSerializer):
@@ -32,3 +32,9 @@ class AvatarSerializer(serializers.ModelSerializer):
     class Meta:
         model = Avatar
         fields = ['name']
+
+
+class RequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RequestModel
+        fields = ['req_from', 'req_to', 'req_opening_message', 'req_state']
