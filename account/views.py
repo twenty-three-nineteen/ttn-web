@@ -79,7 +79,7 @@ class RequestViewSet(viewsets.ModelViewSet):
     serializer_class = RequestSerializer
 
     def get_queryset(self):
-        queryset = RequestModel.objects.all().filter(source=self.request.user)
+        queryset = RequestModel.objects.all().filter(target=self.request.user)
         return queryset
 
     @action(detail=False, methods=['post'])
@@ -94,8 +94,12 @@ class RequestViewSet(viewsets.ModelViewSet):
             }, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['patch'])
-    def response_request(self, request, state, pk):
-
+    def response_request(self, request, state):
+        print(request.data)
+        request_data = request.data['request']
+        source = request_data['source']
+        target = request_data['target']
+        opening_message = request_data['opening_message']
         updated_req_state = request.data['state']
         if request.method == 'PATCH':
             if state != 'accepted' and state != 'rejected':
@@ -103,13 +107,14 @@ class RequestViewSet(viewsets.ModelViewSet):
             if state != updated_req_state:
                 return Response({'message': 'body and request must same'}, status=status.HTTP_403_FORBIDDEN)
             try:
-                RequestModel.objects.filter(id=pk).update(state=updated_req_state)
+                RequestModel.objects.filter(source=source, target=target, opening_message=opening_message).update(
+                    state=updated_req_state)
                 return Response({'message': f'request {state} successfully '}, status=status.HTTP_200_OK)
             except RequestModel.DoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND)
 
     @action(methods=['get'], detail=True)
     def get_user_requests(self, request):
-        related_req = RequestModel.objects.filter(target=request.user).filter(state='pending')
+        related_req = RequestModel.objects.filter(target=request.user, state='pending')
         serializer = RequestSerializer(related_req, many=True)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
