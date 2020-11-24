@@ -54,8 +54,6 @@ class UserProfile(models.Model):
     birthday = models.DateField(default=None, null=True)
     avatar = models.ForeignKey(Avatar, on_delete=models.SET_NULL, default=None, null=True)
     interests = models.ManyToManyField(Interest, default=None, blank=True, related_name='user_interests')
-    requests = models.ManyToManyField(to='self', symmetrical=False, through='RequestModel',
-                                      through_fields=('req_from', 'req_to'), related_name='chat_requests')
 
     class Meta:
         db_table = 'users_profile'
@@ -71,11 +69,11 @@ class OpeningMessage(models.Model):
 
 
 class RequestModel(models.Model):
-    req_from = models.ForeignKey(to=UserProfile, on_delete=models.CASCADE, related_name='req_from')
-    req_to = models.ForeignKey(to=UserProfile, on_delete=models.CASCADE, related_name='req_to')
-    req_opening_message = models.ForeignKey(to=OpeningMessage, on_delete=models.CASCADE)
-    req_state = models.CharField(max_length=20, default='pending')
+    source = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name='req_from')
+    target = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name='req_to')
+    opening_message = models.ForeignKey(to=OpeningMessage, on_delete=models.CASCADE)
+    state = models.CharField(max_length=20, default='pending')
 
     class Meta:
-        unique_together = ('req_from', 'req_to', 'req_opening_message')
+        unique_together = ('source', 'target', 'opening_message')
         db_table = 'Requests'

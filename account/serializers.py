@@ -37,4 +37,4 @@ class AvatarSerializer(serializers.ModelSerializer):
 class RequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = RequestModel
-        fields = ['req_from', 'req_to', 'req_opening_message', 'req_state']
+        fields = ['source', 'target', 'opening_message', 'state']
