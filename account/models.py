@@ -66,3 +66,14 @@ class OpeningMessage(models.Model):
 
     class Meta:
         db_table = "opening_message"
+
+
+class RequestModel(models.Model):
+    source = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name='req_from')
+    target = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name='req_to')
+    opening_message = models.ForeignKey(to=OpeningMessage, on_delete=models.CASCADE)
+    state = models.CharField(max_length=20, default='pending')
+
+    class Meta:
+        unique_together = ('source', 'target', 'opening_message')
+        db_table = 'Requests'

@@ -19,3 +19,15 @@ user_profile = UserProfileViewSet.as_view({
     'get': 'get_user_profile_username',
     'put': 'update_user_profile'
 })
+
+request_message = RequestViewSet.as_view({
+    'post': 'send_request_opening_message',
+})
+
+response_request_message = RequestViewSet.as_view({
+    'patch': 'response_request',
+})
+
+user_requests = RequestViewSet.as_view({
+    'get': 'get_user_requests',
+})
