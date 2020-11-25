@@ -85,8 +85,14 @@ class RequestViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['post'])
     def send_request_opening_message(self, request):
         serializer = RequestSerializer(data=request.data)
+        message = request.data['opening_message']
+        source = request.data['source']
+        target = request.data['target']
+        if RequestModel.objects.filter(source=source, target=target, opening_message=message).exists():
+            return Response({"message": "You have already requested to this opening message"},
+                            status=status.HTTP_400_BAD_REQUEST)
         if not serializer.is_valid():
-            return Response(status.HTTP_400_BAD_REQUEST)
+            return Response({"message": "data not valid"}, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
         return Response(
             {
