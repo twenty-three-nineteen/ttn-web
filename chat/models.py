@@ -11,5 +11,8 @@ class Message(models.Model):
     def __str__(self):
         return self.author.username
 
-    def last_10_messages():
-        return Message.objects.order_by('-send_date').all()[:10:-1]
+
+class Chat(models.Model):
+    participants = models.ManyToManyField(
+        User, related_name='chats', blank=True)
+    messages = models.ManyToManyField(Message, blank=True)
