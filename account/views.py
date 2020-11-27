@@ -75,30 +75,31 @@ class ExploreViewSet(viewsets.ViewSet):
 
 
 class RequestViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated, ]
+    permission_classes = [IsAuthenticated, RequestPermission, ]
     serializer_class = RequestSerializer
 
     def get_queryset(self):
         queryset = RequestModel.objects.all().filter(target=self.request.user, state='pending')
         return queryset
 
-    @action(detail=False, methods=['patch'])
+    @action(detail=False, methods=['put'])
     def response_request(self, request, state):
-        print(request.data)
-        request_data = request.data['request']
-        source = request_data['source']
-        target = request_data['target']
-        opening_message = request_data['opening_message']
-        updated_req_state = request.data['state']
-        if request.method == 'PATCH':
-            if state != 'accepted' and state != 'rejected':
-                return Response({'message': 'invalid req '}, status=status.HTTP_403_FORBIDDEN)
-            if state != updated_req_state:
-                return Response({'message': 'body and request must same'}, status=status.HTTP_403_FORBIDDEN)
-            try:
-                RequestModel.objects.filter(source=source, target=target, opening_message=opening_message).update(
-                    state=updated_req_state)
-                return Response({'message': f'request {state} successfully '}, status=status.HTTP_200_OK)
-            except RequestModel.DoesNotExist:
-                return Response(status=status.HTTP_404_NOT_FOUND)
+        source = request.data['source']
+        target = request.data['target']
+        opening_message = request.data['opening_message']
+        updated_state = request.data['state']
+        if state != 'accepted' and state != 'rejected':
+            return Response({'msg': f'{state} not allowed in url'}, status=status.HTTP_400_BAD_REQUEST)
+        if (updated_state is None) or (updated_state != state):
+            return Response({'msg': f'{state} is not match with {updated_state}'}, status=status.HTTP_400_BAD_REQUEST)
 
+        try:
+            curr_request = RequestModel.objects.get(source=source, opening_message=opening_message, target=target)
+        except RequestModel.DoesNotExist:
+            return Response({'msg': 'not Found'}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = RequestSerializer(curr_request, data=request.data)
+        if not serializer.is_valid():
+            return Response({'msg': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        serializer.save()
+        return Response({'msg': f'{state} successfully'}, status=status.HTTP_200_OK)

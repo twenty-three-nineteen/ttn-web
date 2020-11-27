@@ -25,7 +25,7 @@ request_message = RequestViewSet.as_view({
 })
 
 response_request_message = RequestViewSet.as_view({
-    'patch': 'response_request',
+    'put': 'response_request',
 })
 
 user_pending_requests = RequestViewSet.as_view({
