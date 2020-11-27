@@ -79,25 +79,8 @@ class RequestViewSet(viewsets.ModelViewSet):
     serializer_class = RequestSerializer
 
     def get_queryset(self):
-        queryset = RequestModel.objects.all().filter(target=self.request.user)
+        queryset = RequestModel.objects.all().filter(target=self.request.user, state='pending')
         return queryset
-
-    @action(detail=False, methods=['post'])
-    def send_request_opening_message(self, request):
-        serializer = RequestSerializer(data=request.data)
-        message = request.data['opening_message']
-        source = request.data['source']
-        target = request.data['target']
-        if RequestModel.objects.filter(source=source, target=target, opening_message=message).exists():
-            return Response({"message": "You have already requested to this opening message"},
-                            status=status.HTTP_400_BAD_REQUEST)
-        if not serializer.is_valid():
-            return Response({"message": "data not valid"}, status=status.HTTP_400_BAD_REQUEST)
-        serializer.save()
-        return Response(
-            {
-                'message': 'request successfully sent ...',
-            }, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['patch'])
     def response_request(self, request, state):
@@ -119,8 +102,3 @@ class RequestViewSet(viewsets.ModelViewSet):
             except RequestModel.DoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND)
 
-    @action(methods=['get'], detail=True)
-    def get_user_requests(self, request):
-        related_req = RequestModel.objects.filter(target=request.user, state='pending')
-        serializer = RequestSerializer(related_req, many=True)
-        return Response(data=serializer.data, status=status.HTTP_200_OK)

@@ -13,5 +13,5 @@ urlpatterns = [
     path('explore/suggested_opening_message/', explore),
     path('send_chat_request/', request_message),
     path('response_request/<slug:state>', response_request_message),
-    path('myRequests/', user_requests),
+    path('myRequests/', user_pending_requests),
 ]

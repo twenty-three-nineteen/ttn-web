@@ -21,13 +21,13 @@ user_profile = UserProfileViewSet.as_view({
 })
 
 request_message = RequestViewSet.as_view({
-    'post': 'send_request_opening_message',
+    'post': 'create',
 })
 
 response_request_message = RequestViewSet.as_view({
     'patch': 'response_request',
 })
 
-user_requests = RequestViewSet.as_view({
-    'get': 'get_user_requests',
+user_pending_requests = RequestViewSet.as_view({
+    'get': 'list',
 })
