@@ -18,11 +18,11 @@ class UserManager(BaseUserManager):
 class User(AbstractUser):
     email = models.EmailField(verbose_name='email', max_length=255, unique=True)
     username = models.CharField(max_length=255, unique=True)
-    fullname = models.CharField(max_length=255, default=None)
+    name = models.CharField(max_length=255, default=None)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username', 'fullname', ]
+    REQUIRED_FIELDS = ['username', 'name']
 
     def get_email(self):
         return self.email
@@ -31,7 +31,7 @@ class User(AbstractUser):
         return self.username
 
     def get_full_name(self):
-        return self.fullname
+        return self.name
 
     class Meta:
         db_table = "users"
@@ -77,7 +77,7 @@ class RequestModel(models.Model):
     target = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name='req_to')
     opening_message = models.ForeignKey(to=OpeningMessage, on_delete=models.CASCADE)
     state = models.CharField(max_length=20, default='pending')
-    message = models.CharField(max_length=255, default=None, null=True)
+    message = models.CharField(max_length=255)
 
     class Meta:
         unique_together = ('source', 'target', 'opening_message')

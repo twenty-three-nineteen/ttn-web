@@ -83,23 +83,17 @@ class RequestViewSet(viewsets.ModelViewSet):
         return queryset
 
     @action(detail=False, methods=['put'])
-    def response_request(self, request, state):
-        source = request.data['source']
-        target = request.data['target']
-        opening_message = request.data['opening_message']
-        updated_state = request.data['state']
-        if state != 'accepted' and state != 'rejected':
-            return Response({'msg': f'{state} not allowed in url'}, status=status.HTTP_400_BAD_REQUEST)
-        if (updated_state is None) or (updated_state != state):
-            return Response({'msg': f'{state} is not match with {updated_state}'}, status=status.HTTP_400_BAD_REQUEST)
-
+    def accept_request(self, request, pk):
         try:
-            curr_request = RequestModel.objects.get(source=source, opening_message=opening_message, target=target)
+            RequestModel.objects.filter(id=pk).update(state='accepted')
         except RequestModel.DoesNotExist:
-            return Response({'msg': 'not Found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'msg': 'not found'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'msg': 'accepted successfully'}, status=status.HTTP_200_OK)
 
-        serializer = RequestSerializer(curr_request, data=request.data)
-        if not serializer.is_valid():
-            return Response({'msg': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-        serializer.save()
-        return Response({'msg': f'{state} successfully'}, status=status.HTTP_200_OK)
+    @action(detail=False, methods=['put'])
+    def reject_request(self, request, pk):
+        try:
+            RequestModel.objects.filter(id=pk).update(state='rejected')
+        except RequestModel.DoesNotExist:
+            return Response({'msg': 'not found'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'msg': 'rejected successfully'}, status=status.HTTP_200_OK)

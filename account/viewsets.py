@@ -24,8 +24,12 @@ request_message = RequestViewSet.as_view({
     'post': 'create',
 })
 
-response_request_message = RequestViewSet.as_view({
-    'put': 'response_request',
+accept_request_message = RequestViewSet.as_view({
+    'put': 'accept_request',
+})
+
+reject_request_message = RequestViewSet.as_view({
+    'put': 'reject_request',
 })
 
 user_pending_requests = RequestViewSet.as_view({

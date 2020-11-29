@@ -1,4 +1,5 @@
 from rest_framework import permissions
+from .models import RequestModel
 
 
 class UserPermission(permissions.BasePermission):
@@ -33,6 +34,10 @@ class RequestPermission(permissions.BasePermission):
         if request.data:
             if request.method == 'POST':
                 return request.data['source'] == request.user.id
-            elif request.method == 'PUT':
-                return request.data['target'] == request.user.id
+        elif request.method == 'PUT':
+            req_id = view.kwargs.get('pk', None)
+            if req_id is None:
+                return True
+            target_id = RequestModel.objects.get(id=req_id).target
+            return target_id == request.user
         return True
