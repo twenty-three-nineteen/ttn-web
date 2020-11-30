@@ -75,46 +75,25 @@ class ExploreViewSet(viewsets.ViewSet):
 
 
 class RequestViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated, ]
+    permission_classes = [IsAuthenticated, RequestPermission, ]
     serializer_class = RequestSerializer
 
     def get_queryset(self):
-        queryset = RequestModel.objects.all().filter(target=self.request.user)
+        queryset = RequestModel.objects.all().filter(target=self.request.user, state='pending')
         return queryset
 
-    @action(detail=False, methods=['post'])
-    def send_request_opening_message(self, request):
-        serializer = RequestSerializer(data=request.data)
-        if not serializer.is_valid():
-            return Response(status.HTTP_400_BAD_REQUEST)
-        serializer.save()
-        return Response(
-            {
-                'message': 'request successfully sent ...',
-            }, status=status.HTTP_200_OK)
+    @action(detail=False, methods=['put'])
+    def accept_request(self, request, pk):
+        try:
+            RequestModel.objects.filter(id=pk).update(state='accepted')
+        except RequestModel.DoesNotExist:
+            return Response({'msg': 'not found'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'msg': 'accepted successfully'}, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=['patch'])
-    def response_request(self, request, state):
-        print(request.data)
-        request_data = request.data['request']
-        source = request_data['source']
-        target = request_data['target']
-        opening_message = request_data['opening_message']
-        updated_req_state = request.data['state']
-        if request.method == 'PATCH':
-            if state != 'accepted' and state != 'rejected':
-                return Response({'message': 'invalid req '}, status=status.HTTP_403_FORBIDDEN)
-            if state != updated_req_state:
-                return Response({'message': 'body and request must same'}, status=status.HTTP_403_FORBIDDEN)
-            try:
-                RequestModel.objects.filter(source=source, target=target, opening_message=opening_message).update(
-                    state=updated_req_state)
-                return Response({'message': f'request {state} successfully '}, status=status.HTTP_200_OK)
-            except RequestModel.DoesNotExist:
-                return Response(status=status.HTTP_404_NOT_FOUND)
-
-    @action(methods=['get'], detail=True)
-    def get_user_requests(self, request):
-        related_req = RequestModel.objects.filter(target=request.user, state='pending')
-        serializer = RequestSerializer(related_req, many=True)
-        return Response(data=serializer.data, status=status.HTTP_200_OK)
+    @action(detail=False, methods=['put'])
+    def reject_request(self, request, pk):
+        try:
+            RequestModel.objects.filter(id=pk).update(state='rejected')
+        except RequestModel.DoesNotExist:
+            return Response({'msg': 'not found'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'msg': 'rejected successfully'}, status=status.HTTP_200_OK)
