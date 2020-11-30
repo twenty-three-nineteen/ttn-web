@@ -50,4 +50,4 @@ Login with your created super http://localhost:8000/admin/
 
 Check http://localhost:8000/api_documentation/ for Document and Management
 
-Check http://localhost:8000/admin/ for Manage your database
+Check http://localhost:8000/admin/ for Database Management
