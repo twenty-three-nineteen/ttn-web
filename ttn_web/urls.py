@@ -23,5 +23,6 @@ urlpatterns = [
     path('api_documentation/', schema_view),
     path('admin/', admin.site.urls),
     path('api/account/', include('account.urls')),
-    path('api/chat/', include('chat.urls')),
+    path('api/chat/', include('chat.api.urls')),
+    path('chat/', include('chat.urls'))
 ]

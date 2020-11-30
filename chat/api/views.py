@@ -1,51 +1,34 @@
 from django.contrib.auth import get_user_model
-from rest_framework import permissions
-from rest_framework.generics import (
-    ListAPIView,
-    RetrieveAPIView,
-    CreateAPIView,
-    DestroyAPIView,
-    UpdateAPIView
-)
+from rest_framework import viewsets, status
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+
 from chat.models import Chat
-from chat.views import get_user
 from .serializers import ChatSerializer
 
 User = get_user_model()
 
 
-class ChatListView(ListAPIView):
+class ChatViewSet(viewsets.ModelViewSet):
     serializer_class = ChatSerializer
-    permission_classes = (permissions.AllowAny, )
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        queryset = Chat.objects.all()
-        username = self.request.query_params.get('username', None)
-        if username is not None:
-            user = get_user(username)
-            queryset = Chat.objects.all().filter(participants=user)
-        return queryset
+        return Chat.objects.all().filter(participants=self.request.user)
 
+    def create(self, request, *args, **kwargs):
+        print(request.data)
+        participants = request.data['participants']
+        chat = Chat()
+        chat.save()
+        for username in participants:
+            user = User.objects.get(username=username)
+            chat.participants.add(user)
+        chat.save()
+        return Response({'msg': 'created successfully'}, status=status.HTTP_200_OK)
 
-class ChatDetailView(RetrieveAPIView):
-    queryset = Chat.objects.all()
-    serializer_class = ChatSerializer
-    permission_classes = (permissions.AllowAny, )
-
-
-class ChatCreateView(CreateAPIView):
-    queryset = Chat.objects.all()
-    serializer_class = ChatSerializer
-    permission_classes = (permissions.IsAuthenticated, )
-
-
-class ChatUpdateView(UpdateAPIView):
-    queryset = Chat.objects.all()
-    serializer_class = ChatSerializer
-    permission_classes = (permissions.IsAuthenticated, )
-
-
-class ChatDeleteView(DestroyAPIView):
-    queryset = Chat.objects.all()
-    serializer_class = ChatSerializer
-    permission_classes = (permissions.IsAuthenticated, )
+    def left(self, request, pk):
+        chat = self.get_queryset().get(id=pk)
+        chat.participants.remove(request.user)
+        chat.save()
+        return Response({'msg': 'left successfully'}, status=status.HTTP_200_OK)
