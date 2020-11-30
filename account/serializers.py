@@ -7,7 +7,7 @@ from .models import *
 class UserCreateSerializer(UserCreateSerializer):
     class Meta(UserCreateSerializer.Meta):
         model = User
-        fields = ('id', 'email', 'username', 'password')
+        fields = ('id', 'email', 'username', 'password', 'name')
 
 
 class OpeningMessageSerializer(serializers.ModelSerializer):
@@ -32,3 +32,9 @@ class AvatarSerializer(serializers.ModelSerializer):
     class Meta:
         model = Avatar
         fields = ['name']
+
+
+class RequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RequestModel
+        fields = ['id', 'source', 'target', 'opening_message', 'state', 'message']

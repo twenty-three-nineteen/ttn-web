@@ -1,5 +1,5 @@
 from django.http import JsonResponse
-from rest_framework.decorators import action, api_view, permission_classes
+from rest_framework.decorators import action
 from rest_framework import status, viewsets
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -72,3 +72,28 @@ class ExploreViewSet(viewsets.ViewSet):
         if len(opening_messages) == 0:
             raise FileNotFoundError('No opening message to show')
         return opening_messages[0]
+
+
+class RequestViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated, RequestPermission, ]
+    serializer_class = RequestSerializer
+
+    def get_queryset(self):
+        queryset = RequestModel.objects.all().filter(target=self.request.user, state='pending')
+        return queryset
+
+    @action(detail=False, methods=['put'])
+    def accept_request(self, request, pk):
+        try:
+            RequestModel.objects.filter(id=pk).update(state='accepted')
+        except RequestModel.DoesNotExist:
+            return Response({'msg': 'not found'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'msg': 'accepted successfully'}, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['put'])
+    def reject_request(self, request, pk):
+        try:
+            RequestModel.objects.filter(id=pk).update(state='rejected')
+        except RequestModel.DoesNotExist:
+            return Response({'msg': 'not found'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'msg': 'rejected successfully'}, status=status.HTTP_200_OK)
