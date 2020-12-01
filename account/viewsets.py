@@ -37,8 +37,5 @@ user_pending_requests = RequestViewSet.as_view({
 })
 
 interests = InterestsViewSet.as_view({
-    'get': 'list',
-    'post': 'create',
-    'put': 'update',
-    'delete': 'destroy'
+    'get': 'list'
 })
