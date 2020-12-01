@@ -35,3 +35,7 @@ reject_request_message = RequestViewSet.as_view({
 user_pending_requests = RequestViewSet.as_view({
     'get': 'list',
 })
+
+interests = InterestsViewSet.as_view({
+    'get': 'list'
+})
