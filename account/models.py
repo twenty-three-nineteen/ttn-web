@@ -31,7 +31,7 @@ class Interest(models.Model):
         return '%d: %s' % (self.id, self.subject)
 
     class Meta:
-        db_table = 'all_interests'
+        db_table = 'interests'
 
 
 class Avatar(models.Model):
@@ -50,7 +50,7 @@ class UserProfile(models.Model):
     interests = models.ManyToManyField(Interest, default=None, blank=True, related_name='user_interests')
 
     class Meta:
-        db_table = 'users_profile'
+        db_table = 'user_profiles'
 
 
 class OpeningMessage(models.Model):
@@ -59,7 +59,7 @@ class OpeningMessage(models.Model):
     viewed_by_users = models.ManyToManyField(User, default=None, blank=True, related_name='viewed_by')
 
     class Meta:
-        db_table = "opening_message"
+        db_table = "opening_messages"
 
 
 class RequestModel(models.Model):
@@ -71,4 +71,4 @@ class RequestModel(models.Model):
 
     class Meta:
         unique_together = ('source', 'target', 'opening_message')
-        db_table = 'Requests'
+        db_table = 'requests'

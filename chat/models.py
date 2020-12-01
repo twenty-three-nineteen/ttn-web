@@ -11,8 +11,14 @@ class Message(models.Model):
     def __str__(self):
         return self.author.username
 
+    class Meta:
+        db_table = "messages"
+
 
 class Chat(models.Model):
     participants = models.ManyToManyField(
         User, related_name='chats', blank=True)
     messages = models.ManyToManyField(Message, blank=True)
+
+    class Meta:
+        db_table = "chats"
