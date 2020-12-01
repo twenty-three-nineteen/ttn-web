@@ -40,6 +40,9 @@ class User(AbstractUser):
 class Interest(models.Model):
     subject = models.CharField(max_length=100)
 
+    def __str__(self):
+        return '%d: %s' % (self.id, self.subject)
+
     class Meta:
         db_table = 'all_interests'
 

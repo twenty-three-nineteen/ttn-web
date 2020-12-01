@@ -17,6 +17,8 @@ class OpeningMessageSerializer(serializers.ModelSerializer):
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
+    interests = serializers.StringRelatedField(many=True)
+
     class Meta:
         model = UserProfile
         fields = ['bio', 'birthday', 'avatar', 'interests']
