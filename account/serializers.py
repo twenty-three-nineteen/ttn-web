@@ -17,22 +17,12 @@ class OpeningMessageSerializer(serializers.ModelSerializer):
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
-    def to_representation(self, instance):
-        interests = instance.interests
-        res = []
-        for inter in interests.all():
-            res.append(inter.__str__())
-
-        return {
-            'bio': instance.bio,
-            'birthday': instance.birthday,
-            'avatar': instance.avatar.id,
-            'interests': res
-        }
+    username = serializers.CharField(source='user.username', read_only=True)
+    name = serializers.CharField(source='user.name', read_only=True)
 
     class Meta:
         model = UserProfile
-        fields = ['bio', 'birthday', 'avatar', 'interests']
+        fields = ['username', 'name', 'bio', 'birthday', 'avatar', 'interests']
 
 
 class InterestSerializer(serializers.ModelSerializer):
