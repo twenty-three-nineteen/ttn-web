@@ -17,7 +17,18 @@ class OpeningMessageSerializer(serializers.ModelSerializer):
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
-    interests = serializers.StringRelatedField(many=True)
+    def to_representation(self, instance):
+        interests = instance.interests
+        res = []
+        for inter in interests.all():
+            res.append(inter.__str__())
+
+        return {
+            'bio': instance.bio,
+            'birthday': instance.birthday,
+            'avatar': instance.avatar.id,
+            'interests': res
+        }
 
     class Meta:
         model = UserProfile

@@ -15,4 +15,5 @@ urlpatterns = [
     path('response_request/accepted/<int:pk>', accept_request_message),
     path('response_request/rejected/<int:pk>', reject_request_message),
     path('myRequests/', user_pending_requests),
+    path('interests/', interests)
 ]

@@ -97,3 +97,12 @@ class RequestViewSet(viewsets.ModelViewSet):
         except RequestModel.DoesNotExist:
             return Response({'msg': 'not found'}, status=status.HTTP_404_NOT_FOUND)
         return Response({'msg': 'rejected successfully'}, status=status.HTTP_200_OK)
+
+
+class InterestsViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated, ]
+    serializer_class = InterestSerializer
+
+    def get_queryset(self):
+        queryset = Interest.objects.all()
+        return queryset
