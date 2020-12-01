@@ -19,11 +19,19 @@ class UserProfileViewSet(viewsets.ViewSet):
             curr_user_profile = UserProfile.objects.get(user_id=curr_user.id)
         except UserProfile.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
+        interests = curr_user_profile.interests.all()
+        user_interests = []
+
+        data = (UserProfileSerializer(curr_user_profile)).data
+        for interest in interests:
+            user_interests.append({'id': interest.id, 'subject': interest.subject})
+        tmp = {'interests': user_interests}
+        data.update(tmp)
         if request.method == 'GET':
             return Response(
                 {
                     "user": (UserCreateSerializer(curr_user)).data,
-                    "user_profile": (UserProfileSerializer(curr_user_profile)).data
+                    "user_profile": data
                 }
             )
 
