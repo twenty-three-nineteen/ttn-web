@@ -1,18 +1,5 @@
 from django.db import models
-from django.contrib.postgres.fields import ArrayField
-from django.contrib.auth.models import AbstractUser, PermissionsMixin, BaseUserManager
-
-
-class UserManager(BaseUserManager):
-
-    def create_user(self, email, username, password=None):
-        if not email:
-            raise ValueError("User Must Have Email Address!!")
-        email = self.normalize_email(email)
-        user = self.model(email=email, username=username)
-        user.set_password(password)
-        user.save()
-        return user
+from django.contrib.auth.models import AbstractUser, PermissionsMixin
 
 
 class User(AbstractUser):
