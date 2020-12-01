@@ -7,3 +7,4 @@ admin.site.register(models.RequestModel)
 admin.site.register(models.OpeningMessage)
 admin.site.register(models.Interest)
 admin.site.register(models.User)
+
