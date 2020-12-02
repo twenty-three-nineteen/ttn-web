@@ -28,7 +28,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
 class InterestSerializer(serializers.ModelSerializer):
     class Meta:
         model = Interest
-        fields = ['subject']
+        fields = ['id', 'subject']
 
 
 class AvatarSerializer(serializers.ModelSerializer):
