@@ -17,7 +17,7 @@ Download Link: https://www.enterprisedb.com/downloads/postgres-postgresql-downlo
 #### Create your enviremant
 > $ cd PATH_TO_PROJECT
 
-> $ pip -m venv YOUR_ENVIREMENT_NAME
+> $ python -m venv YOUR_ENVIREMENT_NAME
 
 #### Enviremant activation
 > $ .\YOUR_ENVIREMENT_NAME\Scripts\activate
