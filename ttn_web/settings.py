@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'channels',
     'chat',
+    'drf_yasg',
 ]
 
 LOGGING = {
