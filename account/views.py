@@ -24,7 +24,7 @@ class UserProfileViewSet(viewsets.ViewSet):
         curr_user = get_object_or_404(User, username=username)
         curr_user_profile = get_object_or_404(UserProfile, user=curr_user)
         # TOF
-        if request.data['name'] is not None:
+        if 'name' in request.data and request.data['name'] is not None:
             curr_user.name = request.data['name']
             curr_user.save()
         serializer = UserProfileSerializer(curr_user_profile, data=request.data)
