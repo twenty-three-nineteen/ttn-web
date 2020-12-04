@@ -13,13 +13,13 @@ from .models import *
 class UserProfileViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated, UserPermission, ]
 
-    @action(methods=['get'], detail=False)
-    def get_user_profile_username(self, request, username):
+    @action(methods=['get'], detail=True)
+    def get_user_profile(self, request, username):
         curr_user = get_object_or_404(User, username=username)
         curr_user_profile = get_object_or_404(UserProfile, user=curr_user)
         return JsonResponse(UserProfileSerializer(curr_user_profile).data, safe=False)
 
-    @action(methods=['put'], detail=False)
+    @action(methods=['put'], detail=True)
     def update_user_profile(self, request, username):
         curr_user = get_object_or_404(User, username=username)
         curr_user_profile = get_object_or_404(UserProfile, user=curr_user)
@@ -30,12 +30,7 @@ class UserProfileViewSet(viewsets.ViewSet):
         serializer = UserProfileSerializer(curr_user_profile, data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(
-                {
-                    "success": "update successfully",
-                    "code": 1
-                }, status=status.HTTP_200_OK
-            )
+            return Response({'msg': 'update successfully'}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -62,7 +57,7 @@ class ExploreViewSet(viewsets.ViewSet):
     def get_suggested_for_user(self):
         opening_messages = self.get_queryset()
         if len(opening_messages) == 0:
-            raise FileNotFoundError('No opening message to show')
+            return Response({'msg': 'No opening message to show'}, status=status.HTTP_404_NOT_FOUND)
         return opening_messages[0]
 
 
@@ -71,8 +66,7 @@ class RequestViewSet(viewsets.ModelViewSet):
     serializer_class = RequestSerializer
 
     def get_queryset(self):
-        queryset = RequestModel.objects.all().filter(target=self.request.user, state='pending')
-        return queryset
+        return RequestModel.objects.all().filter(target=self.request.user, state='pending')
 
     @action(detail=False, methods=['put'])
     def accept_request(self, request, pk):
@@ -96,5 +90,4 @@ class InterestsViewSet(viewsets.ModelViewSet):
     serializer_class = InterestSerializer
 
     def get_queryset(self):
-        queryset = Interest.objects.all()
-        return queryset
+        return Interest.objects.all()

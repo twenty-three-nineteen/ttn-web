@@ -16,7 +16,7 @@ explore = ExploreViewSet.as_view({
 })
 
 user_profile = UserProfileViewSet.as_view({
-    'get': 'get_user_profile_username',
+    'get': 'get_user_profile',
     'put': 'update_user_profile'
 })
 
