@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, PermissionsMixin
+from . import validators
 
 
 class User(AbstractUser):
@@ -45,7 +46,7 @@ class Avatar(models.Model):
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     bio = models.CharField(max_length=255, default=None, null=True)
-    birthday = models.DateField(default=None, null=True)
+    birthday = models.DateField(default=None, null=True, validators=[validators.birth_validation])
     avatar = models.ForeignKey(Avatar, on_delete=models.SET_NULL, default=None, null=True)
     interests = models.ManyToManyField(Interest, default=None, blank=True, related_name='user_interests')
 
