@@ -67,7 +67,7 @@ class ExploreViewSet(viewsets.ViewSet):
     def get_suggested_opening_message(self, request):
         opening_message_to_show = self.get_suggested_for_user()
         opening_message_to_show.viewed_by_users.add(request.user)
-        return JsonResponse(OpeningMessageSerializer(opening_message_to_show, many=True).data, safe=False)
+        return JsonResponse(OpeningMessageSerializer(opening_message_to_show).data, safe=False)
 
     def get_suggested_for_user(self):
         opening_messages = self.get_queryset()
