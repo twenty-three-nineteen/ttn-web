@@ -172,6 +172,7 @@ DJOSER = {
     'PASSWORD_RESET_CONFIRM_URL': 'password/reset/confirm/{uid}/{token}',
     'ACTIVATION_URL': 'activate/{uid}/{token}',
     'SEND_ACTIVATION_EMAIL': True,
+    'CREATE_SESSION_ON_LOGIN': True,
 
     'SERIALIZER': {
         'user_create': 'account.serializer.UserCreateSerializer',
