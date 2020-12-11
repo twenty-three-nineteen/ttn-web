@@ -17,7 +17,7 @@ Download Link: https://www.enterprisedb.com/downloads/postgres-postgresql-downlo
 #### Create your enviremant
 > $ cd PATH_TO_PROJECT
 
-> $ pip -m venv YOUR_ENVIREMENT_NAME
+> $ python -m venv YOUR_ENVIREMENT_NAME
 
 #### Enviremant activation
 > $ .\YOUR_ENVIREMENT_NAME\Scripts\activate
@@ -30,6 +30,10 @@ Download Link: https://www.enterprisedb.com/downloads/postgres-postgresql-downlo
 `Navigate to index.html ({PYTHON PATH}\site-packages\rest-framework-swagger\index.html)`
 
 `Change second line {% load staticfiles %} to {% load static %}`
+
+#### Download and Install Memurai
+
+Download from: https://www.memurai.com/
 
 ##
 
@@ -45,3 +49,5 @@ Download Link: https://www.enterprisedb.com/downloads/postgres-postgresql-downlo
 Login with your created super http://localhost:8000/admin/
 
 Check http://localhost:8000/api_documentation/ for Document and Management
+
+Check http://localhost:8000/admin/ for Database Management
