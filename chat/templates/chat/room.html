@@ -116,7 +116,7 @@
 
     var chatSocket = new ReconnectingWebSocket(
         'ws://' + window.location.host +
-        '/ws/chat/');
+        '/ws/chat/?token=37ae1d8512c0002ea9136c1aa4211a5fcba714db');
 
     chatSocket.onopen = function(e) {
       fetchMessages();
