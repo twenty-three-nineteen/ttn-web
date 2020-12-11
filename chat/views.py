@@ -1,5 +1,7 @@
 import json
 
+from rest_framework.authtoken.models import Token
+
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import render, get_object_or_404
@@ -9,7 +11,7 @@ from account.models import User
 from .models import Chat
 
 
-def checkUserChatAccess(user, chatId):
+def check_user_chat_access(user, chatId):
     chat = get_object_or_404(Chat, id=chatId)
     if not (user in chat.participants.all()):
         raise PermissionDenied('You do not have access to this chat')
@@ -30,6 +32,8 @@ def get_current_chat(chatId):
 
 @login_required
 def room(request):
+    token = get_object_or_404(Token, user=request.user)
     return render(request, 'chat/room.html', {
         'username': mark_safe(json.dumps(request.user.username)),
+        'token': mark_safe(json.dumps(token.key)),
     })

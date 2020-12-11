@@ -113,10 +113,11 @@
 <script src="{% static 'reconnecting-websocket.js' %}"></script>
 <script>
     var username = {{ username }};
+    var token = {{ token }};
 
     var chatSocket = new ReconnectingWebSocket(
         'ws://' + window.location.host +
-        '/ws/chat/');
+        '/ws/chat/?token=' + token);
 
     chatSocket.onopen = function(e) {
       fetchMessages();

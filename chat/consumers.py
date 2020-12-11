@@ -3,13 +3,13 @@ from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
 
 from .models import Message
-from .views import get_last_10_messages, get_current_chat, get_user, checkUserChatAccess
+from .views import get_last_10_messages, get_current_chat, check_user_chat_access
 
 
 class ChatConsumer(WebsocketConsumer):
 
     def fetch_messages(self, data):
-        checkUserChatAccess(self.user, data['chatId'])
+        check_user_chat_access(self.user, data['chatId'])
         messages = get_last_10_messages(data['chatId'])
         content = {
             'command': 'messages',
@@ -18,7 +18,7 @@ class ChatConsumer(WebsocketConsumer):
         self.send_message(content)
 
     def new_message(self, data):
-        checkUserChatAccess(self.user, data['chatId'])
+        check_user_chat_access(self.user, data['chatId'])
         author_user = self.user
         message = Message.objects.create(
             author=author_user,
@@ -53,7 +53,7 @@ class ChatConsumer(WebsocketConsumer):
 
     def connect(self):
         self.user = self.scope['user']
-        self.room_group_name = '{}'.format(self.user.id)
+        self.room_group_name = "room_group_name"
         async_to_sync(self.channel_layer.group_add)(
             self.room_group_name,
             self.channel_name
@@ -69,15 +69,6 @@ class ChatConsumer(WebsocketConsumer):
     def receive(self, text_data):
         data = json.loads(text_data)
         self.commands[data['command']](self, data)
-
-    def send_chat_message(self, message):
-        async_to_sync(self.channel_layer.group_send)(
-            self.room_group_name,
-            {
-                'type': 'chat_message',
-                'message': message
-            }
-        )
 
     def send_chat_message(self, message):
         async_to_sync(self.channel_layer.group_send)(
