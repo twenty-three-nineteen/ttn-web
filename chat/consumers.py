@@ -3,13 +3,13 @@ from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
 
 from .models import Message
-from .views import get_last_10_messages, get_current_chat, checkUserChatAccess
+from .views import get_last_10_messages, get_current_chat, check_user_chat_access
 
 
 class ChatConsumer(WebsocketConsumer):
 
     def fetch_messages(self, data):
-        checkUserChatAccess(self.user, data['chatId'])
+        check_user_chat_access(self.user, data['chatId'])
         messages = get_last_10_messages(data['chatId'])
         content = {
             'command': 'messages',
@@ -18,7 +18,7 @@ class ChatConsumer(WebsocketConsumer):
         self.send_message(content)
 
     def new_message(self, data):
-        checkUserChatAccess(self.user, data['chatId'])
+        check_user_chat_access(self.user, data['chatId'])
         author_user = self.user
         message = Message.objects.create(
             author=author_user,
