@@ -31,9 +31,10 @@ def get_current_chat(chatId):
 
 
 @login_required
-def room(request):
+def room(request, chatId):
     token = get_object_or_404(Token, user=request.user)
     return render(request, 'chat/room.html', {
         'username': mark_safe(json.dumps(request.user.username)),
         'token': mark_safe(json.dumps(token.key)),
+        'chatId': mark_safe(mark_safe(json.dumps(chatId))),
     })
