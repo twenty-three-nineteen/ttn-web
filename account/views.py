@@ -50,7 +50,7 @@ class OpeningMessageViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         page_num = request.data.get('page')
         my_posts = self.get_queryset()
-        paginator = Paginator(my_posts, 3)
+        paginator = Paginator(my_posts, 8)
         if paginator.num_pages < page_num:
             return Response({'msg': 'finished'}, status=status.HTTP_404_NOT_FOUND)
         next_three_posts = paginator.get_page(page_num)
