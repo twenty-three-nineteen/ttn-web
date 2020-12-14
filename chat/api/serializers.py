@@ -5,7 +5,7 @@ from chat.models import Chat
 
 
 class ParticipantSerializer(serializers.ModelSerializer):
-    avatar = serializers.CharField(source='profile.avatar', read_only=True)
+    avatar = serializers.CharField(source='profile.avatar.id', read_only=True)
 
     class Meta:
         model = User
