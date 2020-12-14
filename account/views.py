@@ -9,6 +9,7 @@ from django.core.paginator import Paginator
 from .permissions import *
 from .serializers import *
 from .models import *
+from chat.models import Chat, Message
 
 
 class UserProfileViewSet(viewsets.ViewSet):
@@ -81,7 +82,16 @@ class RequestViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['put'])
     def accept_request(self, request, pk):
         try:
-            RequestModel.objects.filter(id=pk).update(state='accepted')
+            chatRequest = self.get_queryset().get(id=pk)
+            chatRequest.state = 'accepted'
+            chatRequest.save()
+            chat = Chat.objects.create()
+            chat.participants.add(chatRequest.source, chatRequest.target)
+            chat.messages.add(Message.objects.create(author=chatRequest.target,
+                                                     content=chatRequest.opening_message.message),
+                              Message.objects.create(author=chatRequest.source,
+                                                     content=chatRequest.message))
+            chat.save()
         except RequestModel.DoesNotExist:
             return Response({'msg': 'not found'}, status=status.HTTP_404_NOT_FOUND)
         return Response({'msg': 'accepted successfully'}, status=status.HTTP_200_OK)
@@ -89,7 +99,7 @@ class RequestViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['put'])
     def reject_request(self, request, pk):
         try:
-            RequestModel.objects.filter(id=pk).update(state='rejected')
+            self.get_queryset().filter(id=pk).update(state='rejected')
         except RequestModel.DoesNotExist:
             return Response({'msg': 'not found'}, status=status.HTTP_404_NOT_FOUND)
         return Response({'msg': 'rejected successfully'}, status=status.HTTP_200_OK)
