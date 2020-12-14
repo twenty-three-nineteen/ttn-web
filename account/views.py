@@ -4,6 +4,7 @@ from rest_framework.decorators import action
 from rest_framework import status, viewsets
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from django.core.paginator import Paginator
 
 from .permissions import *
 from .serializers import *
@@ -40,6 +41,15 @@ class OpeningMessageViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return OpeningMessage.objects.all().filter(owner=self.request.user)
+
+    def list(self, request, *args, **kwargs):
+        page_num = request.data.get('page')
+        my_posts = self.get_queryset()
+        paginator = Paginator(my_posts, 8)
+        if paginator.num_pages < page_num:
+            return Response({'msg': 'finished'}, status=status.HTTP_404_NOT_FOUND)
+        next_three_posts = paginator.get_page(page_num)
+        return JsonResponse(OpeningMessageSerializer(next_three_posts, many=True).data, safe=False)
 
 
 class ExploreViewSet(viewsets.ViewSet):
