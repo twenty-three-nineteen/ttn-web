@@ -13,7 +13,13 @@ class UserCreateSerializer(UserCreateSerializer):
 class OpeningMessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = OpeningMessage
-        fields = ["id", "owner", "message"]
+        fields = ["id", "owner", "message", "categories", "numberOfMembers"]
+
+
+class ExploreSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OpeningMessage
+        fields = ["categories", "numberOfMembers"]
 
 
 class UserProfileSerializer(serializers.ModelSerializer):

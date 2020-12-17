@@ -1,5 +1,12 @@
+import operator
+import random
+from functools import reduce
+
+from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework.decorators import action
 from rest_framework import status, viewsets
 from rest_framework.response import Response
@@ -43,6 +50,19 @@ class OpeningMessageViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return OpeningMessage.objects.all().filter(owner=self.request.user)
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        opening_message = serializer.save()
+        chat = Chat.objects.create(opening_message=opening_message)
+        chat.participants.add(request.user)
+        chat.messages.add(Message.objects.create(author=request.user, content=opening_message.message))
+        chat.save()
+
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
     def list(self, request, *args, **kwargs):
         page_num = request.data.get('page')
         my_posts = self.get_queryset()
@@ -53,23 +73,37 @@ class OpeningMessageViewSet(viewsets.ModelViewSet):
         return JsonResponse(OpeningMessageSerializer(next_three_posts, many=True).data, safe=False)
 
 
-class ExploreViewSet(viewsets.ViewSet):
+class ExploreViewSet(viewsets.GenericViewSet):
+    serializer_class = ExploreSerializer
     permission_classes = [IsAuthenticated, ]
 
     def get_queryset(self):
-        return OpeningMessage.objects.all().exclude(owner=self.request.user).exclude(viewed_by_users=self.request.user)
+        queryset = OpeningMessage.objects.all()
+        queryset = queryset.exclude(owner=self.request.user)
+        queryset = queryset.exclude(viewed_by_users=self.request.user)
 
-    @action(detail=False, methods=['get'])
+        if 'numberOfMembers' in self.request.data:
+            queryset = queryset.filter(numberOfMembers=self.request.data['numberOfMembers'])
+
+        if 'categories' in self.request.data:
+            for cat in self.request.data['categories']:
+                queryset = queryset.filter(categories=cat)
+
+        return queryset
+
+    @action(detail=False, methods=['post'])
     def get_suggested_opening_message(self, request):
         opening_message_to_show = self.get_suggested_for_user()
+        if opening_message_to_show is None:
+            return Response({'msg': 'No opening message to show'}, status=status.HTTP_404_NOT_FOUND)
         opening_message_to_show.viewed_by_users.add(request.user)
         return JsonResponse(OpeningMessageSerializer(opening_message_to_show).data, safe=False)
 
     def get_suggested_for_user(self):
         opening_messages = self.get_queryset()
         if len(opening_messages) == 0:
-            return Response({'msg': 'No opening message to show'}, status=status.HTTP_404_NOT_FOUND)
-        return opening_messages[0]
+            return None
+        return random.choice(opening_messages)
 
 
 class RequestViewSet(viewsets.ModelViewSet):
@@ -85,13 +119,20 @@ class RequestViewSet(viewsets.ModelViewSet):
             chatRequest = self.get_queryset().get(id=pk)
             chatRequest.state = 'accepted'
             chatRequest.save()
-            chat = Chat.objects.create()
-            chat.participants.add(chatRequest.source, chatRequest.target)
-            chat.messages.add(Message.objects.create(author=chatRequest.target,
-                                                     content=chatRequest.opening_message.message),
-                              Message.objects.create(author=chatRequest.source,
+            chat = Chat.objects.all().filter(opening_message=chatRequest.opening_message)\
+                .filter(status=Chat.WAITING)[0]
+            chat.participants.add(chatRequest.source)
+            chat.messages.add(Message.objects.create(author=chatRequest.source,
                                                      content=chatRequest.message))
+            if len(chat.participants.all()) == chatRequest.opening_message.numberOfMembers:
+                chat.status = Chat.ACTIVE
+                other_chat_requests = self.get_queryset()
+                for r in list(other_chat_requests):
+                    if r.state == 'pending':
+                        r.state = 'rejected'
+                    r.save()
             chat.save()
+
         except RequestModel.DoesNotExist:
             return Response({'msg': 'not found'}, status=status.HTTP_404_NOT_FOUND)
         return Response({'msg': 'accepted successfully'}, status=status.HTTP_200_OK)

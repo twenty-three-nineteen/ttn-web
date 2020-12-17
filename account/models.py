@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, PermissionsMixin
+
 from . import validators
 
 
@@ -58,6 +59,8 @@ class OpeningMessage(models.Model):
     message = models.CharField(max_length=200)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     viewed_by_users = models.ManyToManyField(User, default=None, blank=True, related_name='viewed_by')
+    categories = models.ManyToManyField(Interest, default=None, blank=True)
+    numberOfMembers = models.IntegerField(default=2, blank=True)
 
     class Meta:
         db_table = "opening_messages"

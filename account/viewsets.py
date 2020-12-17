@@ -7,12 +7,11 @@ opening_message_list = OpeningMessageViewSet.as_view({
 
 opening_message_detail = OpeningMessageViewSet.as_view({
     'get': 'retrieve',
-    'put': 'update',
     'delete': 'destroy'
 })
 
 explore = ExploreViewSet.as_view({
-    'get': 'get_suggested_opening_message'
+    'post': 'get_suggested_opening_message'
 })
 
 user_profile = UserProfileViewSet.as_view({
