@@ -44,7 +44,7 @@ class OpeningMessageViewSet(viewsets.ModelViewSet):
         return OpeningMessage.objects.all().filter(owner=self.request.user)
 
     def list(self, request, *args, **kwargs):
-        page_num = request.data.get('page')
+        page_num = kwargs.get('page')
         my_posts = self.get_queryset()
         paginator = Paginator(my_posts, 8)
         if paginator.num_pages < page_num:

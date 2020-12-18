@@ -66,7 +66,7 @@ LOGGING = {
             'filename': f'{BASE_DIR}/log/debug.log',
         },
         'console': {
-            'level': 'DEBUG',
+            'level': 'ERROR',
             'class': 'logging.StreamHandler',
             'formatter': 'simple_format'
         },
@@ -74,8 +74,8 @@ LOGGING = {
 
     'loggers': {
         'django': {
-            'handlers': ['file'],
-            'level': 'DEBUG',
+            'handlers': ['console','file'],
+            'level': 'ERROR',
         },
     },
 
