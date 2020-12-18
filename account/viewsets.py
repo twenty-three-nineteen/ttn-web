@@ -1,8 +1,11 @@
 from .views import *
 
+opening_message_create = OpeningMessageViewSet.as_view({
+    'post': 'create',
+})
+
 opening_message_list = OpeningMessageViewSet.as_view({
     'get': 'list',
-    'post': 'create',
 })
 
 opening_message_detail = OpeningMessageViewSet.as_view({
