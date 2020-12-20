@@ -1,3 +1,5 @@
+import random
+
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import action
@@ -57,19 +59,24 @@ class ExploreViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated, ]
 
     def get_queryset(self):
-        return OpeningMessage.objects.all().exclude(owner=self.request.user).exclude(viewed_by_users=self.request.user)
+        queryset = OpeningMessage.objects.all()
+        queryset = queryset.exclude(owner=self.request.user)
+        queryset = queryset.exclude(viewed_by_users=self.request.user)
+        return queryset
 
     @action(detail=False, methods=['get'])
     def get_suggested_opening_message(self, request):
         opening_message_to_show = self.get_suggested_for_user()
+        if opening_message_to_show is None:
+            return Response({'msg': 'No opening message to show'}, status=status.HTTP_404_NOT_FOUND)
         opening_message_to_show.viewed_by_users.add(request.user)
         return JsonResponse(OpeningMessageSerializer(opening_message_to_show).data, safe=False)
 
     def get_suggested_for_user(self):
         opening_messages = self.get_queryset()
         if len(opening_messages) == 0:
-            return Response({'msg': 'No opening message to show'}, status=status.HTTP_404_NOT_FOUND)
-        return opening_messages[0]
+            return None
+        return random.choice(opening_messages)
 
 
 class RequestViewSet(viewsets.ModelViewSet):
