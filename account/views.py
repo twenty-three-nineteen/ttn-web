@@ -64,7 +64,7 @@ class OpeningMessageViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def list(self, request, *args, **kwargs):
-        page_num = request.data.get('page')
+        page_num = kwargs.get('page')
         my_posts = self.get_queryset()
         paginator = Paginator(my_posts, 8)
         if paginator.num_pages < page_num:
@@ -81,7 +81,7 @@ class ExploreViewSet(viewsets.GenericViewSet):
         queryset = OpeningMessage.objects.all()
         queryset = queryset.exclude(owner=self.request.user)
         queryset = queryset.exclude(viewed_by_users=self.request.user)
-
+        
         if 'max_number_of_members' in self.request.data:
             queryset = queryset.filter(numberOfMembers=self.request.data['max_number_of_members'])
 

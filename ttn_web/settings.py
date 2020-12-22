@@ -66,7 +66,7 @@ LOGGING = {
             'filename': f'{BASE_DIR}/log/debug.log',
         },
         'console': {
-            'level': 'DEBUG',
+            'level': 'ERROR',
             'class': 'logging.StreamHandler',
             'formatter': 'simple_format'
         },
@@ -74,8 +74,8 @@ LOGGING = {
 
     'loggers': {
         'django': {
-            'handlers': ['file'],
-            'level': 'DEBUG',
+            'handlers': ['console','file'],
+            'level': 'ERROR',
         },
     },
 
@@ -112,7 +112,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'ttn_web.wsgi.application'
-ASGI_APPLICATION = 'ttn_web.asgi.application'
+ASGI_APPLICATION = 'ttn_web.routing.application'
 
 CHANNEL_LAYERS = {
     'default': {
@@ -216,6 +216,4 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
-]
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
