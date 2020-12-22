@@ -82,8 +82,8 @@ class ExploreViewSet(viewsets.GenericViewSet):
         queryset = queryset.exclude(owner=self.request.user)
         queryset = queryset.exclude(viewed_by_users=self.request.user)
 
-        if 'numberOfMembers' in self.request.data:
-            queryset = queryset.filter(numberOfMembers=self.request.data['numberOfMembers'])
+        if 'max_number_of_members' in self.request.data:
+            queryset = queryset.filter(numberOfMembers=self.request.data['max_number_of_members'])
 
         if 'categories' in self.request.data:
             for cat in self.request.data['categories']:
@@ -111,25 +111,25 @@ class RequestViewSet(viewsets.ModelViewSet):
     serializer_class = RequestSerializer
 
     def get_queryset(self):
-        return RequestModel.objects.all().filter(target=self.request.user, state='pending')
+        return RequestModel.objects.all().filter(target=self.request.user, state=RequestModel.PENDING)
 
     @action(detail=False, methods=['put'])
     def accept_request(self, request, pk):
         try:
             chatRequest = self.get_queryset().get(id=pk)
-            chatRequest.state = 'accepted'
+            chatRequest.state = RequestModel.ACCEPTED
             chatRequest.save()
             chat = Chat.objects.all().filter(opening_message=chatRequest.opening_message)\
                 .filter(status=Chat.WAITING)[0]
             chat.participants.add(chatRequest.source)
             chat.messages.add(Message.objects.create(author=chatRequest.source,
                                                      content=chatRequest.message))
-            if len(chat.participants.all()) == chatRequest.opening_message.numberOfMembers:
+            if len(chat.participants.all()) == chatRequest.opening_message.max_number_of_members:
                 chat.status = Chat.ACTIVE
                 other_chat_requests = self.get_queryset()
                 for r in list(other_chat_requests):
-                    if r.state == 'pending':
-                        r.state = 'rejected'
+                    if r.state == RequestModel.PENDING:
+                        r.state = RequestModel.REJECTED
                     r.save()
             chat.save()
 
@@ -140,7 +140,7 @@ class RequestViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['put'])
     def reject_request(self, request, pk):
         try:
-            self.get_queryset().filter(id=pk).update(state='rejected')
+            self.get_queryset().filter(id=pk).update(state=RequestModel.REJECTED)
         except RequestModel.DoesNotExist:
             return Response({'msg': 'not found'}, status=status.HTTP_404_NOT_FOUND)
         return Response({'msg': 'rejected successfully'}, status=status.HTTP_200_OK)

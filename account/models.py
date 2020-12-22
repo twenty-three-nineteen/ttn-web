@@ -60,17 +60,22 @@ class OpeningMessage(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     viewed_by_users = models.ManyToManyField(User, default=None, blank=True, related_name='viewed_by')
     categories = models.ManyToManyField(Interest, default=None, blank=True)
-    numberOfMembers = models.IntegerField(default=2, blank=True)
+    max_number_of_members = models.IntegerField(default=2, blank=True)
 
     class Meta:
         db_table = "opening_messages"
 
 
 class RequestModel(models.Model):
+
+    PENDING = 'pending'
+    ACCEPTED = 'accepted'
+    REJECTED = 'rejected'
+
     source = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name='req_from')
     target = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name='req_to')
     opening_message = models.ForeignKey(to=OpeningMessage, on_delete=models.CASCADE)
-    state = models.CharField(max_length=20, default='pending')
+    state = models.CharField(max_length=20, default=PENDING)
     message = models.CharField(max_length=255)
 
     class Meta:
