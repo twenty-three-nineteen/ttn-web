@@ -41,3 +41,7 @@ user_pending_requests = RequestViewSet.as_view({
 interests = InterestsViewSet.as_view({
     'get': 'list'
 })
+
+interests_search = InterestsViewSet.as_view({
+    'get': 'search'
+})

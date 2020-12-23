@@ -152,3 +152,10 @@ class InterestsViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return Interest.objects.all()
+
+    def search(self, request, *args, **kwargs):
+        searched_text = kwargs.get('searched_text').lower()
+        if len(searched_text) == 0:
+            Response({'msg': 'Type something!'}, status=status.HTTP_404_NOT_FOUND)
+        searched_list = self.get_queryset().filter(subject__startswith=searched_text)
+        return JsonResponse(self.serializer_class(searched_list, many=True).data, safe=False)
