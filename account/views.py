@@ -1,12 +1,8 @@
-import operator
 import random
-from functools import reduce
 
-from django.db.models import Q
+from django.db.models import Count
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
-from drf_yasg import openapi
-from drf_yasg.utils import swagger_auto_schema
 from rest_framework.decorators import action
 from rest_framework import status, viewsets
 from rest_framework.response import Response
@@ -19,7 +15,8 @@ from .models import *
 from chat.models import Chat, Message
 
 
-class UserProfileViewSet(viewsets.ViewSet):
+class UserProfileViewSet(viewsets.GenericViewSet):
+    serializer_class = UserProfileSerializer
     permission_classes = [IsAuthenticated, UserPermission, ]
 
     @action(methods=['get'], detail=True)
@@ -48,24 +45,19 @@ class OpeningMessageViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated, IsOwner]
 
     def get_queryset(self):
-        return OpeningMessage.objects.all().filter(owner=self.request.user)
+        return OpeningMessage.objects.all()
 
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        opening_message = serializer.save()
+    def perform_create(self, serializer):
+        opening_message = serializer.save(owner=self.request.user)
         chat = Chat.objects.create(opening_message=opening_message)
-        chat.participants.add(request.user)
-        chat.messages.add(Message.objects.create(author=request.user, content=opening_message.message))
+        chat.participants.add(self.request.user)
+        chat.messages.add(Message.objects.create(author=self.request.user, content=opening_message.message))
         chat.save()
-
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def list(self, request, *args, **kwargs):
         page_num = kwargs.get('page')
-        my_posts = self.get_queryset()
+        username = kwargs.get('username')
+        my_posts = self.get_queryset().filter(owner__username=username)
         paginator = Paginator(my_posts, 8)
         if paginator.num_pages < page_num:
             return Response({'msg': 'finished'}, status=status.HTTP_404_NOT_FOUND)
@@ -79,6 +71,7 @@ class ExploreViewSet(viewsets.GenericViewSet):
 
     def get_queryset(self):
         queryset = OpeningMessage.objects.all()
+        queryset = queryset.filter(status=OpeningMessage.ACTIVE)
         queryset = queryset.exclude(owner=self.request.user)
         queryset = queryset.exclude(viewed_by_users=self.request.user)
         
@@ -113,24 +106,36 @@ class RequestViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return RequestModel.objects.all().filter(target=self.request.user, state=RequestModel.PENDING)
 
+    def perform_create(self, serializer):
+        serializer.save(source=self.request.user, target=serializer.validated_data['opening_message'].owner)
+
     @action(detail=False, methods=['put'])
     def accept_request(self, request, pk):
         try:
             chatRequest = self.get_queryset().get(id=pk)
             chatRequest.state = RequestModel.ACCEPTED
             chatRequest.save()
-            chat = Chat.objects.all().filter(opening_message=chatRequest.opening_message)\
-                .filter(status=Chat.WAITING)[0]
+            opening_message = chatRequest.opening_message
+            chat = Chat.objects.all().filter(opening_message=opening_message)\
+                .filter(status=Chat.ACTIVE)\
+                .annotate(participants_count=Count("participants"))\
+                .exclude(participants_count=opening_message.max_number_of_members)[0]
             chat.participants.add(chatRequest.source)
             chat.messages.add(Message.objects.create(author=chatRequest.source,
                                                      content=chatRequest.message))
-            if len(chat.participants.all()) == chatRequest.opening_message.max_number_of_members:
-                chat.status = Chat.ACTIVE
-                other_chat_requests = self.get_queryset()
+            if len(chat.participants.all()) == opening_message.max_number_of_members \
+                    and opening_message.max_number_of_members > 2:
+                opening_message.status = OpeningMessage.INACTIVE
+                other_chat_requests = self.get_queryset().filter(opening_message=opening_message)
                 for r in list(other_chat_requests):
-                    if r.state == RequestModel.PENDING:
-                        r.state = RequestModel.REJECTED
+                    r.state = RequestModel.REJECTED
                     r.save()
+            elif opening_message.max_number_of_members == 2:
+                newChat = Chat.objects.create(opening_message=opening_message)
+                newChat.participants.add(request.user)
+                newChat.messages.add(Message.objects.create(author=request.user, content=opening_message.message))
+                newChat.save()
+
             chat.save()
 
         except RequestModel.DoesNotExist:

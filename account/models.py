@@ -56,11 +56,16 @@ class UserProfile(models.Model):
 
 
 class OpeningMessage(models.Model):
+
+    ACTIVE = 'active'
+    INACTIVE = 'inactive'
+
     message = models.CharField(max_length=200)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     viewed_by_users = models.ManyToManyField(User, default=None, blank=True, related_name='viewed_by')
     categories = models.ManyToManyField(Interest, default=None, blank=True)
     max_number_of_members = models.IntegerField(default=2, blank=True)
+    status = models.CharField(max_length=20, default=ACTIVE)
 
     class Meta:
         db_table = "opening_messages"

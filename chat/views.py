@@ -15,8 +15,6 @@ def check_user_chat_access(user, chatId):
     chat = get_object_or_404(Chat, id=chatId)
     if not (user in chat.participants.all()):
         raise PermissionDenied('You do not have access to this chat.')
-    if chat.status == Chat.WAITING:
-        raise PermissionDenied('Please wait for the other members.')
     if chat.status == Chat.INACTIVE:
         raise PermissionDenied('This chat is inactive.')
 

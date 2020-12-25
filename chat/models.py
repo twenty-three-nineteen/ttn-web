@@ -19,7 +19,6 @@ class Message(models.Model):
 
 class Chat(models.Model):
 
-    WAITING = 'waiting_for_members'
     ACTIVE = 'active'
     INACTIVE = 'inactive'
 
