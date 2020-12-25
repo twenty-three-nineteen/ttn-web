@@ -13,13 +13,14 @@ class UserCreateSerializer(UserCreateSerializer):
 class OpeningMessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = OpeningMessage
-        fields = ["id", "owner", "message", "categories", "numberOfMembers"]
+        fields = ["id", "owner", "message", "categories", "max_number_of_members", "status"]
+        read_only_fields = ["owner", "status"]
 
 
 class ExploreSerializer(serializers.ModelSerializer):
     class Meta:
         model = OpeningMessage
-        fields = ["categories", "numberOfMembers"]
+        fields = ["categories", "max_number_of_members"]
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
@@ -47,3 +48,4 @@ class RequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = RequestModel
         fields = ['id', 'source', 'target', 'opening_message', 'state', 'message']
+        read_only_fields = ['source', 'target', 'state']
