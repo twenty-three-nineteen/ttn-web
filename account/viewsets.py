@@ -10,12 +10,11 @@ opening_message_list = OpeningMessageViewSet.as_view({
 
 opening_message_detail = OpeningMessageViewSet.as_view({
     'get': 'retrieve',
-    'put': 'update',
     'delete': 'destroy'
 })
 
 explore = ExploreViewSet.as_view({
-    'get': 'get_suggested_opening_message'
+    'post': 'get_suggested_opening_message'
 })
 
 user_profile = UserProfileViewSet.as_view({
@@ -41,4 +40,8 @@ user_pending_requests = RequestViewSet.as_view({
 
 interests = InterestsViewSet.as_view({
     'get': 'list'
+})
+
+interests_search = InterestsViewSet.as_view({
+    'get': 'search'
 })

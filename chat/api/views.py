@@ -15,24 +15,13 @@ class ChatViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Chat.objects.all().filter(participants=self.request.user)
-
-    # def create(self, request, *args, **kwargs):
-    #     print(request.data)
-    #     participants = request.data['participants']
-    #     chat = Chat()
-    #     chat.save()
-    #     for username in participants:
-    #         user = User.objects.get(username=username)
-    #         chat.participants.add(user)
-    #     chat.save()
-    #     return Response({'msg': 'created successfully'}, status=status.HTTP_200_OK)
+        return Chat.objects.all().filter(participants=self.request.user).exclude(status=Chat.INACTIVE)
 
     @action(methods=['delete'], detail=True)
     def left(self, request, pk):
         chat = self.get_queryset().get(id=pk)
         chat.participants.remove(request.user)
         if len(chat.participants.all()) < 2:
-            chat.delete()
+            chat.status = Chat.INACTIVE
         chat.save()
         return Response({'msg': 'left successfully'}, status=status.HTTP_200_OK)

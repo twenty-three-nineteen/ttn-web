@@ -7,7 +7,10 @@ class UserPermission(permissions.BasePermission):
         username = view.kwargs.get('username', None)
         if username is None:
             return True
-        return request.user.username == username
+        if request.method == 'GET':
+            return True
+        if request.method == 'PUT':
+            return request.user.username == username
 
     def has_object_permission(self, request, view, obj):
         if request.method in permissions.SAFE_METHODS:
@@ -17,10 +20,8 @@ class UserPermission(permissions.BasePermission):
 
 class IsOwner(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
-        if obj.owner != request.user:
-            return False
-        if request.method == 'PUT' and 'owner' in request.data:
-            return request.data['owner'] == request.user.id
+        if request.method == 'DELETE':
+            return obj.owner == request.user
         return True
 
     def has_permission(self, request, view):
@@ -31,10 +32,7 @@ class IsOwner(permissions.BasePermission):
 
 class RequestPermission(permissions.BasePermission):
     def has_permission(self, request, view):
-        if request.data:
-            if request.method == 'POST':
-                return request.data['source'] == request.user.id
-        elif request.method == 'PUT':
+        if request.method == 'PUT':
             req_id = view.kwargs.get('pk', None)
             if req_id is None:
                 return True

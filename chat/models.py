@@ -1,6 +1,8 @@
+from datetime import datetime
+
 from django.db import models
 
-from account.models import User
+from account.models import User, OpeningMessage
 
 
 class Message(models.Model):
@@ -16,9 +18,15 @@ class Message(models.Model):
 
 
 class Chat(models.Model):
-    participants = models.ManyToManyField(
-        User, related_name='chats', blank=True)
+
+    ACTIVE = 'active'
+    INACTIVE = 'inactive'
+
+    opening_message = models.ForeignKey(to=OpeningMessage, on_delete=models.CASCADE, null=True)
+    status = models.CharField(max_length=20, default=ACTIVE)
+    participants = models.ManyToManyField(User, related_name='chats', blank=True)
     messages = models.ManyToManyField(Message, blank=True)
+    created_date = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = "chats"
