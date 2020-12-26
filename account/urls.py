@@ -8,7 +8,7 @@ urlpatterns = [
     path('auth/', include('djoser.urls.jwt')),
     path('userprofile/<slug:username>', user_profile),
     path('opening_messages/', opening_message_create),
-    path('opening_messages/page/<str:username>/<int:page>', opening_message_list),
+    path('opening_messages/<str:username>/<int:page>', opening_message_list),
     path('opening_messages/<int:pk>', opening_message_detail),
     path('explore/suggested_opening_message/', explore),
     path('send_chat_request/', request_message),
