@@ -13,7 +13,7 @@ class ChatConsumer(WebsocketConsumer):
         messages = get_last_10_messages(data['chatId'])
         content = {
             'command': 'messages',
-            'messages': self.messages_to_json(messages)
+            'messages': self.messages_to_json(messages, data['chatId'])
         }
         self.send_message(content)
 
@@ -28,22 +28,23 @@ class ChatConsumer(WebsocketConsumer):
         current_chat.save()
         content = {
             'command': 'new_message',
-            'message': self.message_to_json(message)
+            'message': self.message_to_json(message, data['chatId'])
         }
         return self.send_chat_message(content, current_chat.participants.all())
 
-    def messages_to_json(self, messages):
+    def messages_to_json(self, messages, chatId):
         result = []
         for message in messages:
-            result.append(self.message_to_json(message))
+            result.append(self.message_to_json(message, chatId))
         return result
 
-    def message_to_json(self, message):
+    def message_to_json(self, message, chatId):
         return {
             'id': message.id,
             'author': message.author.username,
             'content': message.content,
-            'send_date': str(message.send_date)
+            'send_date': str(message.send_date),
+            'chatId': chatId
         }
 
     commands = {
