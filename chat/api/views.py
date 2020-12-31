@@ -6,6 +6,7 @@ from rest_framework.response import Response
 
 from chat.models import Chat
 from .serializers import ChatSerializer
+from ..views import NotificationManager
 
 User = get_user_model()
 
@@ -24,4 +25,5 @@ class ChatViewSet(viewsets.ModelViewSet):
         if len(chat.participants.all()) < 2:
             chat.status = Chat.INACTIVE
         chat.save()
+        NotificationManager().send_leave_notification(request.user.username, chat.id, chat.participants.all())
         return Response({'msg': 'left successfully'}, status=status.HTTP_200_OK)
