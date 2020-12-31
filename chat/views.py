@@ -19,9 +19,9 @@ def check_user_chat_access(user, chatId):
         raise PermissionDenied('This chat is inactive.')
 
 
-def get_last_10_messages(chatId):
+def get_last_10_messages(chatId, loaded_messages_number):
     chat = get_object_or_404(Chat, id=chatId)
-    return chat.messages.order_by('-send_date').all()[:10:-1]
+    return chat.messages.order_by('-send_date').all()[loaded_messages_number:loaded_messages_number + 10:-1]
 
 
 def get_user(username):
