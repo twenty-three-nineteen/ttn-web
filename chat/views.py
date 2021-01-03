@@ -1,5 +1,7 @@
 import json
 
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 from rest_framework.authtoken.models import Token
 
 from django.contrib.auth.decorators import login_required
@@ -9,6 +11,33 @@ from django.utils.safestring import mark_safe
 
 from account.models import User
 from .models import Chat
+
+
+class NotificationManager:
+    def send_join_notification(self, username, chatId, participants):
+        self.send_notification('join_the_group', username, chatId, participants)
+
+    def send_leave_notification(self, username, chatId, participants):
+        self.send_notification('left_the_group', username, chatId, participants)
+
+    def send_notification(self, command, username, chatId, participants):
+        content = {
+            'command': command,
+            'message': {
+                'username': username,
+                'chatId': chatId
+            }
+        }
+        channel_layer = get_channel_layer()
+        for participant in participants:
+            participant_group_name = participant.username
+            async_to_sync(channel_layer.group_send)(
+                participant_group_name,
+                {
+                    'type': 'chat_message',
+                    'message': content
+                }
+            )
 
 
 def check_user_chat_access(user, chatId):
