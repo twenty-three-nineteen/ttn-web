@@ -14,7 +14,8 @@ class ParticipantSerializer(serializers.ModelSerializer):
 
 class ChatSerializer(serializers.ModelSerializer):
     participants = ParticipantSerializer(many=True, read_only=True)
+    opening_message = serializers.CharField(source='opening_message.message', read_only=True)
 
     class Meta:
         model = Chat
-        fields = ('id', 'participants')
+        fields = ('id', 'participants', 'opening_message', 'created_date')
