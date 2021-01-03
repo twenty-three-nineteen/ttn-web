@@ -10,7 +10,10 @@ class ChatConsumer(WebsocketConsumer):
 
     def fetch_messages(self, data):
         check_user_chat_access(self.user, data['chatId'])
-        messages = get_last_10_messages(data['chatId'])
+        if 'loaded_messages_number' in data:
+            messages = get_last_10_messages(data['chatId'], data['loaded_messages_number'])
+        else:
+            messages = get_last_10_messages(data['chatId'], 0)
         content = {
             'command': 'messages',
             'messages': self.messages_to_json(messages, data['chatId'])

@@ -163,6 +163,7 @@
     function fetchMessages() {
       chatSocket.send(JSON.stringify({
           'command': 'fetch_messages',
+          'loaded_messages_number': 0,
           'chatId': chatId
       }));
     }
