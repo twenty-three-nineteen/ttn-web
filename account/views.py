@@ -124,7 +124,7 @@ class RequestViewSet(viewsets.ModelViewSet):
             chat.participants.add(chatRequest.source)
             chat.messages.add(Message.objects.create(author=chatRequest.source,
                                                      content=chatRequest.message))
-            NotificationManager().send_join_notification(chatRequest.source, chat.id, chat.participants.all())
+            NotificationManager().send_join_notification(chatRequest.source.username, chat.id, chat.participants.all())
             if len(chat.participants.all()) == opening_message.max_number_of_members \
                     and opening_message.max_number_of_members > 2:
                 opening_message.status = OpeningMessage.INACTIVE
