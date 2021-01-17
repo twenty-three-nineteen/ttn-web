@@ -9,6 +9,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.core.paginator import Paginator
 
+from chat.consumers import get_user_chat_consumer
 from chat.views import NotificationManager
 from .permissions import *
 from .serializers import *
@@ -122,9 +123,9 @@ class RequestViewSet(viewsets.ModelViewSet):
                 .annotate(participants_count=Count("participants"))\
                 .exclude(participants_count=opening_message.max_number_of_members)[0]
             chat.participants.add(chatRequest.source)
-            chat.messages.add(Message.objects.create(author=chatRequest.source,
-                                                     content=chatRequest.message))
+            chat.save()
             NotificationManager().send_join_notification(chatRequest.source.username, chat.id, chat.participants.all())
+            get_user_chat_consumer(chatRequest.source).create_new_message(chatRequest.message, chat.id)
             if len(chat.participants.all()) == opening_message.max_number_of_members \
                     and opening_message.max_number_of_members > 2:
                 opening_message.status = OpeningMessage.INACTIVE
@@ -137,8 +138,6 @@ class RequestViewSet(viewsets.ModelViewSet):
                 newChat.participants.add(request.user)
                 newChat.messages.add(Message.objects.create(author=request.user, content=opening_message.message))
                 newChat.save()
-
-            chat.save()
 
         except RequestModel.DoesNotExist:
             return Response({'msg': 'not found'}, status=status.HTTP_404_NOT_FOUND)
