@@ -56,6 +56,7 @@ class ChatConsumer(WebsocketConsumer):
         return {
             'id': message.id,
             'author': message.author.username,
+            'authorName': message.author.name,
             'avatarId': get_avatar_id(message.author),
             'content': message.content,
             'send_date': str(message.send_date),
