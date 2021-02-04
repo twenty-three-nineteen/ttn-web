@@ -38,10 +38,10 @@ old_schema_view = get_swagger_view(title='ttn-proj')
 
 urlpatterns = [
     url(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
-    url(r'^api_documentation/v2/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    url(r'^api/documentation/v2/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     url(r'^redoc/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
-    path('api_documentation/', old_schema_view),
-    path('admin/', admin.site.urls),
+    path('api/documentation/', old_schema_view),
+    path('api/admin/', admin.site.urls),
     path('api/account/', include('account.urls')),
     path('api/chat/', include('chat.api.urls')),
     path('chat/', include('chat.urls'))
