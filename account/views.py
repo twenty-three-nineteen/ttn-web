@@ -78,7 +78,7 @@ class ExploreViewSet(viewsets.GenericViewSet):
         queryset = queryset.exclude(viewed_by_users=self.request.user)
         
         if 'max_number_of_members' in self.request.data:
-            queryset = queryset.filter(numberOfMembers=self.request.data['max_number_of_members'])
+            queryset = queryset.filter(max_number_of_members=self.request.data['max_number_of_members'])
 
         if 'categories' in self.request.data:
             for cat in self.request.data['categories']:
