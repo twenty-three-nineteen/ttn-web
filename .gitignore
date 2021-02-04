@@ -247,4 +247,10 @@ fabric.properties
 
 .idea
 
+# Pictures
+pictures/
+
+# static files
+static/
+
 # End of https://www.toptal.com/developers/gitignore/api/python
