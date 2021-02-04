@@ -63,7 +63,10 @@ def get_current_chat(chatId):
 
 def get_avatar_id(user):
     user_profile = get_object_or_404(UserProfile, user=user)
-    return user_profile.avatar.id
+    if user_profile.avatar is not None:
+        return user_profile.avatar.id
+    else:
+        return -1
 
 @login_required
 def room(request, chatId):
