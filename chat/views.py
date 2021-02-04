@@ -9,7 +9,7 @@ from django.core.exceptions import PermissionDenied
 from django.shortcuts import render, get_object_or_404
 from django.utils.safestring import mark_safe
 
-from account.models import User
+from account.models import User, UserProfile
 from .models import Chat
 
 
@@ -60,6 +60,10 @@ def get_user(username):
 def get_current_chat(chatId):
     return get_object_or_404(Chat, id=chatId)
 
+
+def get_avatar_id(user):
+    user_profile = get_object_or_404(UserProfile, user=user)
+    return user_profile.avatar.id
 
 @login_required
 def room(request, chatId):
