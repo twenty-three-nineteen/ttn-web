@@ -1,16 +1,27 @@
 import json
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
+from channels.layers import get_channel_layer
 
 from .models import Message
 from .views import get_last_10_messages, get_current_chat, check_user_chat_access
+
+
+def get_user_chat_consumer(user):
+    chatConsumer = ChatConsumer()
+    chatConsumer.user = user
+    chatConsumer.channel_layer = get_channel_layer()
+    return chatConsumer
 
 
 class ChatConsumer(WebsocketConsumer):
 
     def fetch_messages(self, data):
         check_user_chat_access(self.user, data['chatId'])
-        messages = get_last_10_messages(data['chatId'])
+        if 'loaded_messages_number' in data:
+            messages = get_last_10_messages(data['chatId'], data['loaded_messages_number'])
+        else:
+            messages = get_last_10_messages(data['chatId'], 0)
         content = {
             'command': 'messages',
             'messages': self.messages_to_json(messages, data['chatId'])
@@ -18,17 +29,20 @@ class ChatConsumer(WebsocketConsumer):
         self.send_message(content)
 
     def new_message(self, data):
-        check_user_chat_access(self.user, data['chatId'])
+        self.create_new_message(data['message'], data['chatId'])
+
+    def create_new_message(self, message, chatId):
+        check_user_chat_access(self.user, chatId)
         author_user = self.user
         message = Message.objects.create(
             author=author_user,
-            content=data['message'])
-        current_chat = get_current_chat(data['chatId'])
+            content=message)
+        current_chat = get_current_chat(chatId)
         current_chat.messages.add(message)
         current_chat.save()
         content = {
             'command': 'new_message',
-            'message': self.message_to_json(message, data['chatId'])
+            'message': self.message_to_json(message, chatId)
         }
         return self.send_chat_message(content, current_chat.participants.all())
 

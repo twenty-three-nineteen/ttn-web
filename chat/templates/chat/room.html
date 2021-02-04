@@ -132,6 +132,8 @@
           }
         } else if (data['command'] === 'new_message'){
           createMessage(data['message']);
+        } else {
+            createNotificationMessage(data['message'], data['command']);
         }
     };
 
@@ -161,6 +163,7 @@
     function fetchMessages() {
       chatSocket.send(JSON.stringify({
           'command': 'fetch_messages',
+          'loaded_messages_number': 0,
           'chatId': chatId
       }));
     }
@@ -181,6 +184,20 @@
       msgListTag.appendChild(imgTag);
       msgListTag.appendChild(pTag);
       document.querySelector('#chat-log').appendChild(msgListTag);
+    }
+
+    function createNotificationMessage(data, message) {
+        var username = data['username'];
+        var msgListTag = document.createElement('li');
+        var imgTag = document.createElement('img');
+        var pTag = document.createElement('p');
+        pTag.textContent = username + ' ' + message;
+        imgTag.src = 'http://emilcarlsson.se/assets/mikeross.png';
+
+        msgListTag.className = 'replies';
+        msgListTag.appendChild(imgTag);
+        msgListTag.appendChild(pTag);
+        document.querySelector('#chat-log').appendChild(msgListTag);
     }
 
 </script>
