@@ -4,7 +4,7 @@ from channels.generic.websocket import WebsocketConsumer
 from channels.layers import get_channel_layer
 
 from .models import Message
-from .views import get_last_10_messages, get_current_chat, check_user_chat_access
+from .views import get_last_10_messages, get_current_chat, check_user_chat_access, get_avatar_id
 
 
 def get_user_chat_consumer(user):
@@ -56,6 +56,7 @@ class ChatConsumer(WebsocketConsumer):
         return {
             'id': message.id,
             'author': message.author.username,
+            'avatarId': get_avatar_id(message.author),
             'content': message.content,
             'send_date': str(message.send_date),
             'chatId': chatId
