@@ -7,11 +7,11 @@ from .managers import messages_to_json, message_to_json
 
 class ChatConsumer(WebsocketConsumer):
 
-    event_handler = None
+    event_handler_class = None
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.event_handler = self.event_handler(self)
+        self.event_handler = self.event_handler_class(self)
 
     def connect(self):
         self.user = self.scope['user']
@@ -51,13 +51,13 @@ class ChatConsumer(WebsocketConsumer):
 
 class EventHandler:
 
-    chat_manager = None
+    chat_manager_class = None
 
     def __init__(self, chat_consumer):
         self.chat_consumer = chat_consumer
 
     def fetch_messages(self, data):
-        chat_mgr = self.chat_manager(data['chatId'])
+        chat_mgr = self.chat_manager_class(data['chatId'])
         chat_mgr.check_user_chat_access(self.chat_consumer.user)
         messages = chat_mgr.get_last_10_messages(data['loaded_messages_number'])
         event = {
@@ -67,7 +67,7 @@ class EventHandler:
         self.chat_consumer.send_message(event)
 
     def new_message(self, data):
-        chat_mgr = self.chat_manager(data['chatId'])
+        chat_mgr = self.chat_manager_class(data['chatId'])
         chat_mgr.check_user_chat_access(self.chat_consumer.user)
         text_message = chat_mgr.create_text_message(self.chat_consumer.user, data['message'])
         event = {
@@ -77,7 +77,7 @@ class EventHandler:
         self.chat_consumer.send_event(event, chat_mgr.get_participants())
 
     def join(self, data):
-        chat_mgr = self.chat_manager(data['chatId'])
+        chat_mgr = self.chat_manager_class(data['chatId'])
         chat_mgr.join_the_chat(self.chat_consumer.user)
         event = {
             'command': 'join_the_group',
@@ -89,7 +89,7 @@ class EventHandler:
         self.chat_consumer.send_event(event, chat_mgr.get_participants())
 
     def left(self, data):
-        chat_mgr = self.chat_manager(data['chatId'])
+        chat_mgr = self.chat_manager_class(data['chatId'])
         chat_mgr.left_the_chat(self.chat_consumer.user)
         event = {
             'command': 'left_the_group',
@@ -101,7 +101,7 @@ class EventHandler:
         self.chat_consumer.send_event(event, chat_mgr.get_participants())
 
     def promote(self, data):
-        chat_mgr = self.chat_manager(data['chatId'])
+        chat_mgr = self.chat_manager_class(data['chatId'])
         chat_mgr.check_user_chat_access(self.chat_consumer.user)
         promoted_user = chat_mgr.promote_to_admin(self.chat_consumer.user, data['userId_to_promote'])
         event = {

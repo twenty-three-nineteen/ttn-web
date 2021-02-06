@@ -1,6 +1,8 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+from django.conf import settings
+
 
 class Profile(models.Model):
     bio = models.CharField(max_length=255, default=None, null=True, blank=True)
@@ -17,10 +19,11 @@ class User(AbstractUser, Profile):
 
 
 class Message(models.Model):
-    # Foreign key to ChatUserInfo
-    author = None
-    # Foreign key to Message
-    replied_message = None
+    author = models.ForeignKey(settings.OOD_FINAL_PROJECT['chat_user_info_model']
+                               , related_name='author_messages',
+                               on_delete=models.CASCADE)
+    replied_message = models.ForeignKey(settings.OOD_FINAL_PROJECT['message_model'],
+                                        on_delete=models.SET_NULL, null=True)
     send_date = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -42,8 +45,10 @@ class TextMessage(Message):
 
 
 class Chat(Profile):
-    # Many to Many to Message
-    messages = None
+
+    message_model = None
+
+    messages = models.ManyToManyField(settings.OOD_FINAL_PROJECT['message_model'], blank=True)
     created_date = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -57,10 +62,8 @@ class MemberTypes:
 
 
 class ChatUserInfo(models.Model):
-    # Foreign key to User
-    user = None
-    # Foreign key to Chat
-    chat = None
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    chat = models.ForeignKey(settings.OOD_FINAL_PROJECT['chat_model'], on_delete=models.CASCADE)
     m_type = models.CharField(max_length=30, default=MemberTypes.MEMBER)
 
     class Meta:

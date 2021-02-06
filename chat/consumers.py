@@ -12,11 +12,11 @@ def get_user_chat_consumer(user):
 
 
 class MyEventHandler(EventHandler):
-    chat_manager = MyChatManager
+    chat_manager_class = MyChatManager
 
 
 class MyChatConsumer(ChatConsumer):
-    event_handler = MyEventHandler
+    event_handler_class = MyEventHandler
 
 
 
