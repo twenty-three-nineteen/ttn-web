@@ -5,7 +5,7 @@ from ood_project.consumers import ChatConsumer, EventHandler
 
 
 def get_user_chat_consumer(user):
-    chatConsumer = ChatConsumer()
+    chatConsumer = MyChatConsumer()
     chatConsumer.user = user
     chatConsumer.channel_layer = get_channel_layer()
     return chatConsumer

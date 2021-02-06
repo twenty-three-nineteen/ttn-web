@@ -11,6 +11,11 @@ class MyChatManager(ChatManager):
     text_message_model = MyMessage
     chat_user_info_model = MyChatUserInfo
 
+    def left_the_chat(self, user):
+        super().left_the_chat(user)
+        if len(self.get_participants()) < 2:
+            self.chat.status = MyChat.INACTIVE
+
     def check_user_chat_access(self, user):
         if not (user in self.get_participants()):
             raise PermissionDenied('You do not have access to this chat.')
