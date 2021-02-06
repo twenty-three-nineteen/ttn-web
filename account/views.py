@@ -10,11 +10,11 @@ from rest_framework.permissions import IsAuthenticated
 from django.core.paginator import Paginator
 
 from chat.consumers import get_user_chat_consumer
-from chat.views import NotificationManager
+from chat.managers import NotificationManager
 from .permissions import *
 from .serializers import *
 from .models import *
-from chat.models import Chat, Message
+from chat.models import MyChat, MyMessage
 
 
 class UserProfileViewSet(viewsets.GenericViewSet):
@@ -51,9 +51,9 @@ class OpeningMessageViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         opening_message = serializer.save(owner=self.request.user)
-        chat = Chat.objects.create(opening_message=opening_message)
+        chat = MyChat.objects.create(opening_message=opening_message)
         chat.participants.add(self.request.user)
-        chat.messages.add(Message.objects.create(author=self.request.user, content=opening_message.message))
+        chat.messages.add(MyMessage.objects.create(author=self.request.user, content=opening_message.message))
         chat.save()
 
     def list(self, request, *args, **kwargs):
@@ -118,8 +118,8 @@ class RequestViewSet(viewsets.ModelViewSet):
             chatRequest.state = RequestModel.ACCEPTED
             chatRequest.save()
             opening_message = chatRequest.opening_message
-            chat = Chat.objects.all().filter(opening_message=opening_message)\
-                .filter(status=Chat.ACTIVE)\
+            chat = MyChat.objects.all().filter(opening_message=opening_message)\
+                .filter(status=MyChat.ACTIVE)\
                 .annotate(participants_count=Count("participants"))\
                 .exclude(participants_count=opening_message.max_number_of_members)[0]
             chat.participants.add(chatRequest.source)
@@ -134,9 +134,9 @@ class RequestViewSet(viewsets.ModelViewSet):
                     r.state = RequestModel.REJECTED
                     r.save()
             elif opening_message.max_number_of_members == 2:
-                newChat = Chat.objects.create(opening_message=opening_message)
+                newChat = MyChat.objects.create(opening_message=opening_message)
                 newChat.participants.add(request.user)
-                newChat.messages.add(Message.objects.create(author=request.user, content=opening_message.message))
+                newChat.messages.add(MyMessage.objects.create(author=request.user, content=opening_message.message))
                 newChat.save()
 
         except RequestModel.DoesNotExist:
