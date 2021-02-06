@@ -31,4 +31,4 @@ class MyChatUserInfo(ChatUserInfo):
     chat = models.ForeignKey(MyChat, on_delete=models.CASCADE)
 
     class Meta:
-        db_table = "chat_user_info"
+        db_table = "chat_user_infos"
