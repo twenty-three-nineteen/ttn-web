@@ -59,7 +59,7 @@ class OpeningMessageViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         page_num = kwargs.get('page')
         username = kwargs.get('username')
-        my_posts = self.get_queryset().filter(owner__username=username)
+        my_posts = self.get_queryset().filter(owner__username=username).order_by('-id')
         paginator = Paginator(my_posts, 8)
         if paginator.num_pages < page_num:
             return Response({'msg': 'finished'}, status=status.HTTP_404_NOT_FOUND)
@@ -78,7 +78,7 @@ class ExploreViewSet(viewsets.GenericViewSet):
         queryset = queryset.exclude(viewed_by_users=self.request.user)
         
         if 'max_number_of_members' in self.request.data:
-            queryset = queryset.filter(numberOfMembers=self.request.data['max_number_of_members'])
+            queryset = queryset.filter(max_number_of_members=self.request.data['max_number_of_members'])
 
         if 'categories' in self.request.data:
             for cat in self.request.data['categories']:
