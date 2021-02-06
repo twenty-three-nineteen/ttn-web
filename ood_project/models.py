@@ -19,8 +19,8 @@ class User(AbstractUser, Profile):
 
 
 class Message(models.Model):
-    author = models.ForeignKey(settings.OOD_FINAL_PROJECT['chat_user_info_model']
-                               , related_name='author_messages',
+    author = models.ForeignKey(settings.OOD_FINAL_PROJECT['chat_user_info_model'],
+                               related_name='author_messages',
                                on_delete=models.CASCADE)
     replied_message = models.ForeignKey(settings.OOD_FINAL_PROJECT['message_model'],
                                         on_delete=models.SET_NULL, null=True)
@@ -45,9 +45,6 @@ class TextMessage(Message):
 
 
 class Chat(Profile):
-
-    message_model = None
-
     messages = models.ManyToManyField(settings.OOD_FINAL_PROJECT['message_model'], blank=True)
     created_date = models.DateTimeField(auto_now_add=True)
 

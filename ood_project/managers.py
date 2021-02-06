@@ -39,7 +39,7 @@ class ChatManager:
                 and cui_to_promote.m_type == MemberTypes.MEMBER:
             cui_to_promote.m_type = MemberTypes.ADMIN
             cui_to_promote.save()
-            return cui_to_promote
+            return cui_to_promote.user
         else:
             raise PermissionDenied()
 
