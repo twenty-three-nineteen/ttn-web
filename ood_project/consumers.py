@@ -47,7 +47,7 @@ class ChatConsumer(WebsocketConsumer):
         self.event_handler.handle(data)
 
 
-class EventHandler(object):
+class EventHandler:
 
     def __init__(self, chat_consumer, user):
         self.user = user
@@ -87,11 +87,25 @@ class EventHandler(object):
 
     def left(self, data):
         chat_mgr = ChatManager(data['chatId'])
-        chat_mgr.join_the_chat(self.user)
+        chat_mgr.left_the_chat(self.user)
         event = {
             'command': 'left_the_group',
             'message': {
                 'username': self.user.username,
+                'chatId': data['chatId']
+            }
+        }
+        self.chat_consumer.send_event(event, chat_mgr.get_participants())
+
+    def promote(self, data):
+        chat_mgr = ChatManager(data['chatId'])
+        chat_mgr.check_user_chat_access(self.user)
+        promoted_user = chat_mgr.promote_to_admin(self.user, data['userId_to_promote'])
+        event = {
+            'command': 'promote',
+            'message': {
+                'username': self.user.username,
+                'promoted_user': promoted_user.username,
                 'chatId': data['chatId']
             }
         }
@@ -104,5 +118,6 @@ class EventHandler(object):
         'fetch_messages': fetch_messages,
         'new_message': new_message,
         'join': join,
-        'left': left
+        'left': left,
+        'promote': promote
     }

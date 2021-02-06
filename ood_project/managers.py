@@ -1,7 +1,7 @@
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
 
-from ood_project.models import TextMessage, ChatUserInfo, Chat
+from ood_project.models import TextMessage, ChatUserInfo, Chat, MemberTypes
 
 
 class ChatManager:
@@ -26,8 +26,16 @@ class ChatManager:
     def left_the_chat(self, user):
         ChatUserInfo.objects.filter(chat=self.chat, user=user).delete()
 
-    def promote(self, cui, member_type):
-        pass
+    def promote_to_admin(self, user, user_to_promote_id):
+        cui = ChatUserInfo.objects.all().filter(chat=self.chat).get(user=user)
+        cui_to_promote = ChatUserInfo.objects.all().filter(chat=self.chat).get(user__id=user_to_promote_id)
+        if (cui.m_type == MemberTypes.ADMIN or cui.m_type == MemberTypes.OWNER)\
+                and cui_to_promote.m_type == MemberTypes.MEMBER:
+            cui_to_promote.m_type = MemberTypes.ADMIN
+            cui_to_promote.save()
+            return cui_to_promote
+        else:
+            raise PermissionDenied()
 
     def get_participants(self):
         chat_user_infos = ChatUserInfo.objects.filter(chat=self.chat)
