@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from account.models import User
-from chat.models import Chat
+from chat.models import MyChat
 
 
 class ParticipantSerializer(serializers.ModelSerializer):
@@ -13,9 +13,8 @@ class ParticipantSerializer(serializers.ModelSerializer):
 
 
 class ChatSerializer(serializers.ModelSerializer):
-    participants = ParticipantSerializer(many=True, read_only=True)
     opening_message = serializers.CharField(source='opening_message.message', read_only=True)
 
     class Meta:
-        model = Chat
-        fields = ('id', 'participants', 'opening_message', 'created_date')
+        model = MyChat
+        fields = ('id', 'opening_message', 'created_date')

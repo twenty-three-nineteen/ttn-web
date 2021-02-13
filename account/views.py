@@ -1,6 +1,5 @@
 import random
 
-from django.db.models import Count
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import action
@@ -10,11 +9,11 @@ from rest_framework.permissions import IsAuthenticated
 from django.core.paginator import Paginator
 
 from chat.consumers import get_user_chat_consumer
-from chat.views import NotificationManager
+from chat.managers import NotificationManager, MyChatManager
 from .permissions import *
 from .serializers import *
 from .models import *
-from chat.models import Chat, Message
+from chat.models import MyChat
 
 
 class UserProfileViewSet(viewsets.GenericViewSet):
@@ -51,10 +50,10 @@ class OpeningMessageViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         opening_message = serializer.save(owner=self.request.user)
-        chat = Chat.objects.create(opening_message=opening_message)
-        chat.participants.add(self.request.user)
-        chat.messages.add(Message.objects.create(author=self.request.user, content=opening_message.message))
-        chat.save()
+        chat = MyChat.objects.create(opening_message=opening_message)
+        chat_mgr = MyChatManager(chat.id)
+        chat_mgr.join_the_chat(self.request.user)
+        chat_mgr.create_text_message(author=self.request.user, text=opening_message.message)
 
     def list(self, request, *args, **kwargs):
         page_num = kwargs.get('page')
@@ -118,15 +117,17 @@ class RequestViewSet(viewsets.ModelViewSet):
             chatRequest.state = RequestModel.ACCEPTED
             chatRequest.save()
             opening_message = chatRequest.opening_message
-            chat = Chat.objects.all().filter(opening_message=opening_message)\
-                .filter(status=Chat.ACTIVE)\
-                .annotate(participants_count=Count("participants"))\
-                .exclude(participants_count=opening_message.max_number_of_members)[0]
-            chat.participants.add(chatRequest.source)
-            chat.save()
-            NotificationManager().send_join_notification(chatRequest.source.username, chat.id, chat.participants.all())
-            get_user_chat_consumer(chatRequest.source).create_new_message(chatRequest.message, chat.id)
-            if len(chat.participants.all()) == opening_message.max_number_of_members \
+            chats = MyChat.objects.all().filter(opening_message=opening_message).filter(status=MyChat.ACTIVE)
+            chat_mgr = None
+            for chat in chats:
+                if len(MyChatManager(chat.id).get_participants()) < opening_message.max_number_of_members:
+                    chat_mgr = MyChatManager(chat.id)
+            chat_mgr.join_the_chat(chatRequest.source)
+            NotificationManager().send_join_notification(chatRequest.source.username,
+                                                         chat_mgr.chat.id,
+                                                         chat_mgr.get_participants())
+            get_user_chat_consumer(chatRequest.source).create_new_message(chatRequest.message, chat_mgr.chat.id)
+            if len(chat_mgr.get_participants()) == opening_message.max_number_of_members \
                     and opening_message.max_number_of_members > 2:
                 opening_message.status = OpeningMessage.INACTIVE
                 other_chat_requests = self.get_queryset().filter(opening_message=opening_message)
@@ -134,10 +135,10 @@ class RequestViewSet(viewsets.ModelViewSet):
                     r.state = RequestModel.REJECTED
                     r.save()
             elif opening_message.max_number_of_members == 2:
-                newChat = Chat.objects.create(opening_message=opening_message)
-                newChat.participants.add(request.user)
-                newChat.messages.add(Message.objects.create(author=request.user, content=opening_message.message))
-                newChat.save()
+                newChat = MyChat.objects.create(opening_message=opening_message)
+                new_chat_mgr = MyChatManager(newChat.id)
+                new_chat_mgr.join_the_chat(request.user)
+                new_chat_mgr.create_text_message(author=request.user, text=opening_message.message)
 
         except RequestModel.DoesNotExist:
             return Response({'msg': 'not found'}, status=status.HTTP_404_NOT_FOUND)

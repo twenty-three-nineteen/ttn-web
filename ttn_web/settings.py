@@ -181,6 +181,12 @@ DJOSER = {
     },
 }
 
+OOD_FINAL_PROJECT = {
+    'chat_model': 'chat.MyChat',
+    'chat_user_info_model': 'chat.MyChatUserInfo',
+    'message_model': 'chat.MyMessage',
+}
+
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
 
