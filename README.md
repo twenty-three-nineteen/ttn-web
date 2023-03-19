@@ -1,52 +1,39 @@
-<b><i> APP_NAME </i></b>
+# TalkZone
 
-# Instructions For Use
+TalkZone is a web application like Tinder but it uses text instead of photos. It is developed by TTN team using Django REST framework as the backend service.
 
-<b> clone project </b>
+## Description
 
-## PostgreSQL
-Download Link: https://www.enterprisedb.com/downloads/postgres-postgresql-downloads
-- Create a Database (Check ttn_web/settings.py for database name)
-- create a Login/Group Roles (Check ttn_web/settings.py for user and password)
+TalkZone allows users to write anything like Twitter in different categories. Others can see this text file and if they like it, they can start a conversation with the author. It uses Django channels for chat implementation and PostgreSQL as database.
 
-## Virtualenv
+## Installation
 
-#### Install Virtualenv
-> $ pip install virtualenv
+- First you need to install the required dependencies using pip:
 
-#### Create your enviremant
-> $ cd PATH_TO_PROJECT
+```bash
+pip install -r requirements.txt
+```
 
-> $ python -m venv YOUR_ENVIREMENT_NAME
+- Then you need to create a PostgreSQL database and configure the settings.py file with the database credentials. You also need to run the migrations and create a superuser:
 
-#### Enviremant activation
-> $ .\YOUR_ENVIREMENT_NAME\Scripts\activate
+```bash
+python manage.py migrate
+python manage.py createsuperuser
+```
 
-## Requirements
-
-#### Install requirements
-> $ pip install -r requirements.txt
+Note: Because of a bug in swagger package, you have to follow this instruction before using the browsable API:
 
 `Navigate to index.html ({PYTHON PATH}\site-packages\rest-framework-swagger\index.html)`
 
 `Change second line {% load staticfiles %} to {% load static %}`
 
-#### Download and Install Memurai
+## Usage
 
-Download from: https://www.memurai.com/
+To run TalkZone, you need to start the Django development server:
 
-##
-
-#### Migrate your project
->$ python manage.py migrate
-
-#### Create your super user
->$ python manage.py createsuperuser
-
-#### Start project
 >$ python manage.py runserver
 
-Login with your created super http://localhost:8000/admin/
+Then you can access the web application at http://localhost:8000/ and the browsable API at http://localhost:8000/api/. You can also use the admin interface at http://localhost:8000/admin/ with your superuser credentials.
 
 Check http://localhost:8000/api_documentation/ for Document and Management
 
